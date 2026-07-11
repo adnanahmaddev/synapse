@@ -1,4 +1,8 @@
-// Global Constants for Fenzo AI Clone MVP
+// Global Constants for Synapse Interactive Learning Platform
+
+export const PRODUCT_NAME = 'Synapse';
+export const PRODUCT_TITLE = 'Synapse | Interactive Learning Platform';
+export const PRODUCT_DESCRIPTION = 'Personalized AI-guided learning courses';
 
 export const DEFAULT_OLLAMA_HOST = 'http://localhost:11434';
 export const DEFAULT_OLLAMA_MODEL = 'gemma4:e4b';

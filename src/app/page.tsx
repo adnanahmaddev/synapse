@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import { Paperclip, Sliders, ArrowRight, Sparkles } from 'lucide-react';
-import { QUICK_START_TOPICS, LOADING_STEPS_TEXTS } from '@/utils/constants';
+import { QUICK_START_TOPICS, LOADING_STEPS_TEXTS, PRODUCT_NAME } from '@/utils/constants';
 
 export default function Home() {
   const router = useRouter();
@@ -102,14 +102,8 @@ export default function Home() {
       {/* Main Gradient Dashboard Panel */}
       <main className="flex-1 h-full wave-bg flex flex-col justify-between items-center px-6 py-12 relative overflow-y-auto">
         {/* Top Header Buttons */}
-        <div className="w-full flex justify-end gap-3 absolute top-6 right-6">
-          <button className="text-xs font-semibold px-4 py-2 border border-slate-700/60 text-white rounded-lg bg-slate-800/40 hover:bg-slate-800/60 backdrop-blur-xs transition-all">
-            Upgrade
-          </button>
-          <button className="text-xs font-semibold px-4 py-2 text-slate-300 hover:text-white transition-colors">
-            Feedback
-          </button>
-        </div>
+        {/* Header Actions */}
+        <div className="w-full flex justify-end gap-3 absolute top-6 right-6"></div>
 
         {/* Center Panel Container */}
         <div className="flex-1 flex flex-col justify-center items-center max-w-2xl w-full my-auto z-10 space-y-8 animate-fade-in">
@@ -125,11 +119,7 @@ export default function Home() {
 
           {/* Central Prompt Area */}
           <div className="w-full bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100 flex flex-col transition-all focus-within:shadow-2xl">
-            {/* Upgrade banner if needed */}
-            <div className="bg-slate-50 border-b border-slate-100 px-5 py-2 text-[10px] text-slate-500 font-medium flex items-center justify-between">
-              <span>Free account limits apply. Custom generation powered by Gemini & Local Models.</span>
-              <span className="text-indigo-600 font-bold cursor-pointer hover:underline">Upgrade to Pro</span>
-            </div>
+
 
             {/* Main Textarea input */}
             <textarea
@@ -204,7 +194,7 @@ export default function Home() {
 
         {/* Bottom footer text */}
         <div className="text-[10px] text-slate-500 select-none z-10 mt-6">
-          © {new Date().getFullYear()} Fenzo AI Clone. Developed locally for study and prep.
+          © {new Date().getFullYear()} {PRODUCT_NAME}. Developed locally for study and prep.
         </div>
 
         {/* Loading Overlay */}

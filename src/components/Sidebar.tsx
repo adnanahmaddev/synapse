@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { DEFAULT_OLLAMA_HOST, DEFAULT_OLLAMA_MODEL } from '@/utils/constants';
+import { DEFAULT_OLLAMA_HOST, DEFAULT_OLLAMA_MODEL, PRODUCT_NAME } from '@/utils/constants';
 import { 
   Sparkles, 
   Settings, 
@@ -15,7 +15,8 @@ import {
   Cpu,
   Bookmark,
   ChevronUp,
-  X
+  X,
+  Leaf
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -102,13 +103,13 @@ export default function Sidebar({
     <aside className="w-[300px] border-r border-slate-200 bg-white flex flex-col h-screen shrink-0 text-slate-800 relative z-30">
       {/* Brand Header */}
       <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => router.push('/')}>
-          {/* Flame Icon */}
-          <div className="w-7 h-7 bg-gradient-to-tr from-orange-500 to-red-500 rounded-lg flex items-center justify-center text-white shadow-sm font-semibold">
-            f
+        <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => router.push('/')}>
+          {/* Leaf Icon */}
+          <div className="w-7 h-7 bg-gradient-to-tr from-emerald-400 to-emerald-600 rounded-lg flex items-center justify-center text-white shadow-sm">
+            <Leaf className="w-4 h-4 text-white fill-emerald-100/20" />
           </div>
-          <span className="text-xl font-bold tracking-tight bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
-            fenzo
+          <span className="text-2xl font-serif italic font-normal text-slate-800 lowercase tracking-wide">
+            {PRODUCT_NAME}
           </span>
         </div>
         
