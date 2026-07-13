@@ -147,7 +147,7 @@ export default function Sidebar({
                   <button
                     key={les.id}
                     onClick={() => onSelectLesson?.(les.id)}
-                    className={`w-full flex items-start gap-2.5 text-left text-sm py-2 px-2.5 rounded-lg border transition-all focus:outline-none ${
+                    className={`w-full flex items-start gap-2.5 text-left text-sm py-2 px-2.5 rounded-lg border transition-all focus:outline-none cursor-pointer ${
                       isActive 
                         ? 'bg-brand-50 text-brand-600 font-semibold border-brand-100/50' 
                         : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100/50 font-medium'
@@ -180,7 +180,7 @@ export default function Sidebar({
                   <button
                     key={course.id}
                     onClick={() => loadPastCourse(course)}
-                    className="w-full text-left text-xs py-2 px-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg flex items-center gap-2 transition-colors truncate"
+                    className="w-full text-left text-xs py-2 px-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg flex items-center gap-2 transition-colors truncate cursor-pointer"
                     title={course.prompt}
                   >
                     <Bookmark className="w-3.5 h-3.5 text-slate-400 shrink-0" />
@@ -207,7 +207,7 @@ export default function Sidebar({
           </div>
           <button 
             onClick={() => setShowSettings(!showSettings)}
-            className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-slate-600"
+            className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-slate-600 cursor-pointer"
             title="Model Settings"
           >
             <Settings className="w-4 h-4" />
@@ -227,7 +227,7 @@ export default function Sidebar({
                 </span>
                 <button 
                   onClick={() => setShowSettings(false)}
-                  className="p-1 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600"
+                  className="p-1 hover:bg-slate-100 rounded-lg text-slate-400 hover:text-slate-600 cursor-pointer"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -308,7 +308,7 @@ export default function Sidebar({
 
             <button
               onClick={saveSettings}
-              className="w-full bg-slate-950 hover:bg-slate-900 text-white font-semibold py-2.5 rounded-xl text-xs transition-colors shadow-sm mt-4"
+              className="w-full bg-slate-950 hover:bg-slate-900 text-white font-semibold py-2.5 rounded-xl text-xs transition-colors shadow-sm mt-4 cursor-pointer"
             >
               Save Configuration
             </button>
