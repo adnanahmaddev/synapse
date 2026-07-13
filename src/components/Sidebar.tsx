@@ -4,17 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { DEFAULT_OLLAMA_HOST, DEFAULT_OLLAMA_MODEL, PRODUCT_NAME } from '@/utils/constants';
 import { 
-  Sparkles, 
   Settings, 
-  ChevronDown, 
-  ChevronRight, 
   CheckCircle2, 
-  Circle, 
   Sliders, 
   Globe, 
   Cpu,
   Bookmark,
-  ChevronUp,
   X,
   Leaf
 } from 'lucide-react';
@@ -92,12 +87,12 @@ export default function Sidebar({
     router.push(`/workspace?courseId=${course.id}`);
   };
 
-  const toggleModule = (moduleId: string) => {
-    setCollapsedModules(prev => ({
-      ...prev,
-      [moduleId]: !prev[moduleId]
-    }));
-  };
+  const flatLessonsList: any[] = [];
+  activeCourse?.syllabus?.modules?.forEach((mod: any) => {
+    mod.lessons?.forEach((les: any) => {
+      flatLessonsList.push(les);
+    });
+  });
 
   return (
     <aside className="w-[300px] border-r border-slate-200 bg-white flex flex-col h-screen shrink-0 text-slate-800 relative z-30">
@@ -112,73 +107,50 @@ export default function Sidebar({
             {PRODUCT_NAME}
           </span>
         </div>
-        
-        <button 
-          onClick={() => setShowSettings(!showSettings)}
-          className="p-1.5 hover:bg-slate-50 rounded-lg border border-slate-100 transition-colors text-slate-500 hover:text-slate-700"
-          title="Model Settings"
-        >
-          <Settings className="w-4 h-4" />
-        </button>
-      </div>
-
-      {/* Main Actions */}
-      <div className="p-4">
-        <button
-          onClick={startNewCourse}
-          className="w-full flex items-center justify-center gap-2 bg-indigo-50 hover:bg-indigo-100/80 text-indigo-600 font-semibold py-3 px-4 rounded-xl border border-indigo-100 transition-all shadow-sm hover:scale-[1.01] active:scale-[0.99] duration-150 text-sm"
-        >
-          <Sparkles className="w-4 h-4 text-indigo-500" />
-          New Course
-        </button>
       </div>
 
       {/* Dynamic Content Pane */}
-      <div className="flex-1 overflow-y-auto px-4 py-2 space-y-6">
+      <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
         {/* Render Active Syllabus Navigation if inside a course workspace */}
         {activeCourse ? (
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-2">Syllabus</h3>
-            <div className="space-y-3">
-              {activeCourse.syllabus?.modules?.map((mod: any) => {
-                const isCollapsed = collapsedModules[mod.id];
+            <div className="flex items-center justify-between mb-3 px-2">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Syllabus</h3>
+              <button 
+                onClick={startNewCourse}
+                className="text-[10px] text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-1 cursor-pointer uppercase tracking-wider"
+                title="Create New Course"
+              >
+                + New Course
+              </button>
+            </div>
+            <div className="space-y-1">
+              {flatLessonsList.map((les: any, index: number) => {
+                const isCompleted = completedLessons.includes(les.id);
+                const isActive = activeLessonId === les.id;
+                const idxString = String(index + 1).padStart(2, '0');
+                
                 return (
-                  <div key={mod.id} className="space-y-1.5">
-                    <button
-                      onClick={() => toggleModule(mod.id)}
-                      className="w-full flex items-center justify-between text-left text-xs font-semibold text-slate-600 hover:text-slate-900 py-1.5 px-2 hover:bg-slate-50 rounded-lg transition-colors"
-                    >
-                      <span className="truncate max-w-[200px]">{mod.title}</span>
-                      {isCollapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
-                    </button>
-                    
-                    {!isCollapsed && (
-                      <div className="pl-2 border-l border-slate-100 ml-3 space-y-1">
-                        {mod.lessons?.map((les: any) => {
-                          const isCompleted = completedLessons.includes(les.id);
-                          const isActive = activeLessonId === les.id;
-                          return (
-                            <button
-                              key={les.id}
-                              onClick={() => onSelectLesson?.(les.id)}
-                              className={`w-full flex items-center gap-2.5 text-left text-xs py-2 px-2.5 rounded-lg transition-all ${
-                                isActive 
-                                  ? 'bg-indigo-50/80 text-indigo-600 font-medium border-l-2 border-indigo-600 pl-2' 
-                                  : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
-                              }`}
-                            >
-                              {isCompleted ? (
-                                <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />
-                              ) : (
-                                <Circle className="w-4 h-4 text-slate-300 shrink-0" />
-                              )}
-                              <span className="truncate">{les.title}</span>
-                            </button>
-                          );
-                        })}
-                      </div>
+                  <button
+                    key={les.id}
+                    onClick={() => onSelectLesson?.(les.id)}
+                    className={`w-full flex items-center gap-3 text-left text-xs py-2 px-2.5 rounded-lg transition-all ${
+                      isActive 
+                        ? 'bg-indigo-50 text-indigo-700 font-semibold border-l-2 border-indigo-600 pl-2' 
+                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+                    }`}
+                  >
+                    {isCompleted ? (
+                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
+                    ) : (
+                      <span className={`text-[10px] font-bold shrink-0 font-mono w-3.5 text-center ${
+                        isActive ? 'text-indigo-600' : 'text-slate-400'
+                      }`}>
+                        {idxString}
+                      </span>
                     )}
-                  </div>
+                    <span className="truncate">{les.title}</span>
+                  </button>
                 );
               })}
             </div>
@@ -186,26 +158,37 @@ export default function Sidebar({
         ) : null}
 
         {/* History / Recent Content */}
-        <div>
-          <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 px-2">Recent Content</h3>
-          {history.length === 0 ? (
-            <div className="text-xs text-slate-400 italic px-2">No past courses generated.</div>
-          ) : (
-            <div className="space-y-1">
-              {history.slice(0, 8).map((course: any) => (
-                <button
-                  key={course.id}
-                  onClick={() => loadPastCourse(course)}
-                  className="w-full text-left text-xs py-2 px-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg flex items-center gap-2 transition-colors truncate"
-                  title={course.prompt}
-                >
-                  <Bookmark className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-                  <span className="truncate">{course.title || course.prompt}</span>
-                </button>
-              ))}
+        {!activeCourse && (
+          <div>
+            <div className="flex items-center justify-between mb-3 px-2">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Recent Content</h3>
+              <button 
+                onClick={startNewCourse}
+                className="text-[10px] text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-1 cursor-pointer uppercase tracking-wider"
+                title="Create New Course"
+              >
+                + New Course
+              </button>
             </div>
-          )}
-        </div>
+            {history.length === 0 ? (
+              <div className="text-xs text-slate-400 italic px-2">No past courses generated.</div>
+            ) : (
+              <div className="space-y-1">
+                {history.slice(0, 8).map((course: any) => (
+                  <button
+                    key={course.id}
+                    onClick={() => loadPastCourse(course)}
+                    className="w-full text-left text-xs py-2 px-2.5 text-slate-600 hover:text-slate-900 hover:bg-slate-50 rounded-lg flex items-center gap-2 transition-colors truncate"
+                    title={course.prompt}
+                  >
+                    <Bookmark className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+                    <span className="truncate">{course.title || course.prompt}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* User Profile Footer */}
@@ -219,9 +202,13 @@ export default function Sidebar({
             <div className="text-[10px] font-medium text-slate-400 mt-1">Free account</div>
           </div>
         </div>
-        <div className="text-slate-400">
-          <ChevronUp className="w-3.5 h-3.5" />
-        </div>
+        <button 
+          onClick={() => setShowSettings(!showSettings)}
+          className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-slate-600"
+          title="Model Settings"
+        >
+          <Settings className="w-4 h-4" />
+        </button>
       </div>
 
       {/* Model Settings Drawer */}

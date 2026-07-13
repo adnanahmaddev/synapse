@@ -52,7 +52,7 @@ export default function QuizCard({ quizData, onPass }: QuizCardProps) {
   };
 
   return (
-    <div className="w-full bg-white text-slate-800 rounded-2xl p-6 border border-slate-200/80 shadow-xs space-y-6 flex flex-col justify-between h-full overflow-y-auto">
+    <div className="w-full space-y-6">
       <div className="space-y-4">
         {/* Header Badge */}
         <div className="flex items-center gap-2 text-indigo-600 text-xs font-bold uppercase tracking-wider">
@@ -66,12 +66,12 @@ export default function QuizCard({ quizData, onPass }: QuizCardProps) {
         </h3>
 
         {/* Options */}
-        <div className="space-y-2.5">
+        <div className="space-y-2">
           {options.map((option, idx) => {
             const isSelected = selectedIdx === idx;
             const isCorrect = idx === correctIndex;
             
-            let btnClass = "border-slate-200 bg-slate-50/50 hover:bg-slate-50 hover:border-slate-300 text-slate-700";
+            let btnClass = "border-slate-200 bg-white hover:bg-slate-50 hover:border-slate-300 text-slate-700";
             let iconElement = null;
 
             if (submitted) {
@@ -82,10 +82,10 @@ export default function QuizCard({ quizData, onPass }: QuizCardProps) {
                 btnClass = "border-rose-500 bg-rose-50 text-rose-800 font-semibold";
                 iconElement = <X className="w-4 h-4 text-rose-600 shrink-0" />;
               } else {
-                btnClass = "border-slate-100 bg-slate-50/20 text-slate-400 opacity-60";
+                btnClass = "border-slate-100 bg-white text-slate-400 opacity-60";
               }
             } else if (isSelected) {
-              btnClass = "border-indigo-500 bg-indigo-50 text-indigo-800 font-semibold";
+              btnClass = "border-indigo-500 bg-indigo-50/50 text-indigo-800 font-semibold";
             }
 
             return (
@@ -104,15 +104,15 @@ export default function QuizCard({ quizData, onPass }: QuizCardProps) {
       </div>
 
       {/* Action Zone & Feedback */}
-      <div className="space-y-4 pt-4 border-t border-slate-100">
+      <div className="space-y-4">
         {!submitted ? (
           <button
             onClick={handleSubmit}
             disabled={selectedIdx === null}
-            className={`w-full py-3 px-4 font-bold rounded-xl text-xs transition-all shadow-xs flex items-center justify-center gap-1.5 ${
+            className={`w-full py-3 px-4 font-bold rounded-xl text-xs transition-all flex items-center justify-center gap-1.5 ${
               selectedIdx === null
-                ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-100'
-                : 'bg-indigo-600 hover:bg-indigo-700 text-white active:scale-[0.99] cursor-pointer shadow-xs'
+                ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                : 'bg-indigo-600 hover:bg-indigo-700 text-white active:scale-[0.99] cursor-pointer shadow-sm'
             }`}
           >
             Submit Answer

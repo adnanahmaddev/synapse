@@ -5,7 +5,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import LessonBody from '@/components/LessonBody';
 import QuizCard from '@/components/QuizCard';
-import { ArrowLeft, ArrowRight, CheckCircle, Home } from 'lucide-react';
+import { ArrowLeft, ArrowRight, CheckCircle } from 'lucide-react';
 
 function WorkspaceContent() {
   const router = useRouter();
@@ -135,14 +135,6 @@ function WorkspaceContent() {
         {/* Top Header details */}
         <header className="bg-white border-b border-slate-200 px-6 py-4 flex justify-between items-center shrink-0">
           <div className="flex items-center gap-3">
-            <button 
-              onClick={() => router.push('/')}
-              className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-slate-700"
-              title="Return to Home"
-            >
-              <Home className="w-4.5 h-4.5" />
-            </button>
-            <div className="border-l border-slate-200 h-5"></div>
             <div>
               <h2 className="text-sm font-bold text-slate-900 leading-tight">
                 {activeCourse.title}
@@ -154,14 +146,9 @@ function WorkspaceContent() {
           </div>
 
           {/* Progress bar */}
-          <div className="flex items-center gap-3 select-none">
-            <div className="text-right hidden sm:block">
-              <div className="text-xs font-bold text-slate-700">{progressPercent}% Complete</div>
-              <div className="text-[9px] font-semibold text-slate-400">
-                {completedLessons.length} / {flatLessons.length} lessons passed
-              </div>
-            </div>
-            <div className="w-24 bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/40">
+          <div className="flex items-center gap-2.5 select-none">
+            <span className="text-xs font-bold text-slate-500">{progressPercent}%</span>
+            <div className="w-20 bg-slate-100 rounded-full h-1.5 overflow-hidden">
               <div 
                 className="bg-indigo-600 h-full rounded-full transition-all duration-300"
                 style={{ width: `${progressPercent}%` }}
