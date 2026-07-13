@@ -13,20 +13,20 @@ export default function LessonBody({ title, content }: LessonBodyProps) {
   return (
     <article className="prose prose-slate max-w-none text-slate-700 leading-relaxed space-y-4">
       {/* Title */}
-      <h1 className="text-2xl font-extrabold text-slate-900 border-b border-slate-100 pb-3 leading-tight tracking-tight">
+      <h1 className="text-3xl md:text-4xl font-serif font-normal text-slate-800 leading-tight tracking-normal mb-6">
         {title}
       </h1>
 
       {/* Markdown Text */}
-      <div className="text-sm space-y-4 markdown-content">
+      <div className="space-y-4 markdown-content">
         <ReactMarkdown 
           remarkPlugins={[remarkGfm]}
           components={{
-            h2: ({node, ...props}) => <h2 className="text-base font-bold text-slate-800 mt-6 mb-2" {...props} />,
-            h3: ({node, ...props}) => <h3 className="text-sm font-semibold text-slate-800 mt-4 mb-2" {...props} />,
-            p: ({node, ...props}) => <p className="mb-3 text-slate-600 text-sm leading-relaxed" {...props} />,
-            ul: ({node, ...props}) => <ul className="list-disc pl-5 space-y-1 text-slate-600 mb-3 text-sm" {...props} />,
-            ol: ({node, ...props}) => <ol className="list-decimal pl-5 space-y-1 text-slate-600 mb-3 text-sm" {...props} />,
+            h2: ({node, ...props}) => <h2 className="text-xl md:text-2xl font-serif font-normal text-slate-800 mt-8 mb-4" {...props} />,
+            h3: ({node, ...props}) => <h3 className="text-lg font-serif font-normal text-slate-800 mt-6 mb-3" {...props} />,
+            p: ({node, ...props}) => <p className="mb-4 text-slate-600 text-sm md:text-base leading-relaxed" {...props} />,
+            ul: ({node, ...props}) => <ul className="list-disc pl-5 space-y-1.5 text-slate-600 mb-4 text-sm md:text-base" {...props} />,
+            ol: ({node, ...props}) => <ol className="list-decimal pl-5 space-y-1.5 text-slate-600 mb-4 text-sm md:text-base" {...props} />,
             li: ({node, ...props}) => <li className="pl-0.5" {...props} />,
             code: ({node, className, children, ...props}) => {
               const isInline = !className;

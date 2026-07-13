@@ -11,7 +11,8 @@ import {
   Cpu,
   Bookmark,
   X,
-  Leaf
+  Leaf,
+  Plus
 } from 'lucide-react';
 
 interface SidebarProps {
@@ -94,62 +95,78 @@ export default function Sidebar({
     });
   });
 
+  const progressPercent = flatLessonsList.length > 0 
+    ? Math.round((completedLessons.length / flatLessonsList.length) * 100) 
+    : 0;
+
   return (
-    <aside className="w-[300px] border-r border-slate-200 bg-white flex flex-col h-screen shrink-0 text-slate-800 relative z-30">
+    <aside className="w-[260px] border-r border-slate-200 bg-[#fafafa] flex flex-col h-full shrink-0 text-slate-800 relative z-30">
       {/* Brand Header */}
-      <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-        <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => router.push('/')}>
-          {/* Leaf Icon */}
-          <div className="w-7 h-7 bg-gradient-to-tr from-emerald-400 to-emerald-600 rounded-lg flex items-center justify-center text-white shadow-sm">
-            <Leaf className="w-4 h-4 text-white fill-emerald-100/20" />
+      {!activeCourse && (
+        <div className="p-5 border-b border-slate-100 flex items-center justify-between">
+          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => router.push('/')}>
+            {/* Leaf Icon */}
+            <div className="w-7 h-7 bg-gradient-to-tr from-emerald-400 to-emerald-600 rounded-lg flex items-center justify-center text-white shadow-sm">
+              <Leaf className="w-4 h-4 text-white fill-emerald-100/20" />
+            </div>
+            <span className="text-2xl font-serif italic font-normal text-slate-800 lowercase tracking-wide">
+              {PRODUCT_NAME}
+            </span>
           </div>
-          <span className="text-2xl font-serif italic font-normal text-slate-800 lowercase tracking-wide">
-            {PRODUCT_NAME}
-          </span>
         </div>
-      </div>
+      )}
 
       {/* Dynamic Content Pane */}
       <div className="flex-1 overflow-y-auto px-4 py-6 space-y-6">
         {/* Render Active Syllabus Navigation if inside a course workspace */}
         {activeCourse ? (
           <div>
-            <div className="flex items-center justify-between mb-3 px-2">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Syllabus</h3>
+            <div className="flex items-center justify-between mb-4 px-2">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Course Outline</h3>
               <button 
                 onClick={startNewCourse}
-                className="text-[10px] text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-1 cursor-pointer uppercase tracking-wider"
+                className="p-1 hover:bg-slate-200/50 rounded transition-colors text-slate-400 hover:text-slate-600 cursor-pointer"
                 title="Create New Course"
               >
-                + New Course
+                <Plus className="w-3.5 h-3.5" />
               </button>
             </div>
+
+            {/* Progress indicator */}
+            <div className="px-2 mb-6 select-none">
+              <div className="flex justify-between items-center text-xs font-semibold text-slate-500">
+                <span>Progress</span>
+                <span className="font-bold text-slate-800">{progressPercent}%</span>
+              </div>
+              <div className="w-full bg-slate-200/60 rounded-full h-1 overflow-hidden mt-1.5">
+                <div 
+                  className="bg-indigo-600 h-full rounded-full transition-all duration-300"
+                  style={{ width: `${progressPercent}%` }}
+                ></div>
+              </div>
+            </div>
+
             <div className="space-y-1">
               {flatLessonsList.map((les: any, index: number) => {
                 const isCompleted = completedLessons.includes(les.id);
                 const isActive = activeLessonId === les.id;
-                const idxString = String(index + 1).padStart(2, '0');
                 
                 return (
                   <button
                     key={les.id}
                     onClick={() => onSelectLesson?.(les.id)}
-                    className={`w-full flex items-center gap-3 text-left text-xs py-2 px-2.5 rounded-lg transition-all ${
+                    className={`w-full flex items-start gap-2.5 text-left text-sm py-2 px-2.5 rounded-lg transition-all ${
                       isActive 
-                        ? 'bg-indigo-50 text-indigo-700 font-semibold border-l-2 border-indigo-600 pl-2' 
-                        : 'text-slate-500 hover:text-slate-900 hover:bg-slate-50'
+                        ? 'bg-indigo-50/70 text-indigo-600 font-semibold' 
+                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/50 font-medium'
                     }`}
                   >
-                    {isCompleted ? (
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-                    ) : (
-                      <span className={`text-[10px] font-bold shrink-0 font-mono w-3.5 text-center ${
-                        isActive ? 'text-indigo-600' : 'text-slate-400'
-                      }`}>
-                        {idxString}
-                      </span>
-                    )}
-                    <span className="truncate">{les.title}</span>
+                    <span className={`text-sm font-bold shrink-0 font-mono w-4 text-left ${
+                      isActive ? 'text-indigo-600' : 'text-slate-400'
+                    }`}>
+                      {index + 1}
+                    </span>
+                    <span className="leading-tight">{les.title}</span>
                   </button>
                 );
               })}
@@ -162,13 +179,6 @@ export default function Sidebar({
           <div>
             <div className="flex items-center justify-between mb-3 px-2">
               <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Recent Content</h3>
-              <button 
-                onClick={startNewCourse}
-                className="text-[10px] text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-1 cursor-pointer uppercase tracking-wider"
-                title="Create New Course"
-              >
-                + New Course
-              </button>
             </div>
             {history.length === 0 ? (
               <div className="text-xs text-slate-400 italic px-2">No past courses generated.</div>
@@ -192,24 +202,26 @@ export default function Sidebar({
       </div>
 
       {/* User Profile Footer */}
-      <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
-        <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-semibold shadow-sm overflow-hidden">
-            AA
+      {!activeCourse && (
+        <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-semibold shadow-sm overflow-hidden">
+              AA
+            </div>
+            <div>
+              <div className="text-sm font-semibold text-slate-900 leading-none">Adnan Ahmad</div>
+              <div className="text-[10px] font-medium text-slate-400 mt-1">Free account</div>
+            </div>
           </div>
-          <div>
-            <div className="text-sm font-semibold text-slate-900 leading-none">Adnan Ahmad</div>
-            <div className="text-[10px] font-medium text-slate-400 mt-1">Free account</div>
-          </div>
+          <button 
+            onClick={() => setShowSettings(!showSettings)}
+            className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-slate-600"
+            title="Model Settings"
+          >
+            <Settings className="w-4 h-4" />
+          </button>
         </div>
-        <button 
-          onClick={() => setShowSettings(!showSettings)}
-          className="p-1.5 hover:bg-slate-100 rounded-lg transition-colors text-slate-400 hover:text-slate-600"
-          title="Model Settings"
-        >
-          <Settings className="w-4 h-4" />
-        </button>
-      </div>
+      )}
 
       {/* Model Settings Drawer */}
       {showSettings && (
