@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { DEFAULT_OLLAMA_HOST, DEFAULT_OLLAMA_MODEL, PRODUCT_NAME } from '@/utils/constants';
+import { DEFAULT_OLLAMA_HOST, DEFAULT_OLLAMA_MODEL } from '@/utils/constants';
+
 import BrandLogo from '@/components/BrandLogo';
 import { 
   Settings, 
-  CheckCircle2, 
   Sliders, 
   Globe, 
   Cpu,
@@ -14,6 +14,7 @@ import {
   X,
   Plus
 } from 'lucide-react';
+
 
 interface SidebarProps {
   activeCourse?: any;
@@ -39,8 +40,6 @@ export default function Sidebar({
   const [ollamaHost, setOllamaHost] = useState(process.env.NEXT_PUBLIC_OLLAMA_HOST || DEFAULT_OLLAMA_HOST);
   const [ollamaModel, setOllamaModel] = useState(process.env.NEXT_PUBLIC_OLLAMA_MODEL || DEFAULT_OLLAMA_MODEL);
   
-  // Collapsed modules inside syllabus
-  const [collapsedModules, setCollapsedModules] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     // Load Settings

@@ -5,7 +5,9 @@ import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import LessonBody from '@/components/LessonBody';
 import QuizCard from '@/components/QuizCard';
-import { ArrowLeft, ArrowRight, CheckCircle, Share2 } from 'lucide-react';
+import { Share2 } from 'lucide-react';
+
+
 import BrandLogo from '@/components/BrandLogo';
 
 function loadCourseFromStorage(courseId: string | undefined) {
@@ -33,34 +35,33 @@ function flattenLessons(course: any): any[] {
 function WorkspaceContent({ courseId }: { courseId?: string }) {
   const router = useRouter();
 
-  // Lazy initializer: reads localStorage synchronously on first render so there
-  // is no flash of the "Loading…" spinner when navigating from the home page.
-  const [activeCourse, setActiveCourse] = useState<any | null>(() =>
-    loadCourseFromStorage(courseId)
-  );
-  const [activeLessonId, setActiveLessonId] = useState<string>(() => {
-    const course = loadCourseFromStorage(courseId);
-    const lessons = flattenLessons(course);
-    return lessons[0]?.id ?? '';
-  });
-  const [completedLessons, setCompletedLessons] = useState<string[]>(() => {
-    const course = loadCourseFromStorage(courseId);
-    return course?.completedLessons ?? [];
-  });
-  const [flatLessons, setFlatLessons] = useState<any[]>(() =>
-    flattenLessons(loadCourseFromStorage(courseId))
-  );
+  // All state starts with server-safe defaults (null / empty).
+  // localStorage is only available after mount, so we populate state in the
+  // useEffect below. This avoids a hydration mismatch where the server renders
+  // the loading spinner (window === undefined → null) but the client renders
+  // the full workspace (localStorage available → real data).
+  const [activeCourse, setActiveCourse] = useState<any | null>(null);
+  const [activeLessonId, setActiveLessonId] = useState<string>('');
+  const [completedLessons, setCompletedLessons] = useState<string[]>([]);
+  const [flatLessons, setFlatLessons] = useState<any[]>([]);
 
-  // Redirect if no valid course found
+  // Load course from localStorage after mount, then redirect if not found.
   useEffect(() => {
     if (!courseId) {
       router.push('/');
       return;
     }
-    if (!activeCourse) {
+    const course = loadCourseFromStorage(courseId);
+    if (!course) {
       router.push('/');
+      return;
     }
-  }, [courseId, activeCourse, router]);
+    const lessons = flattenLessons(course);
+    setActiveCourse(course);
+    setFlatLessons(lessons);
+    setActiveLessonId(lessons[0]?.id ?? '');
+    setCompletedLessons(course.completedLessons ?? []);
+  }, [courseId, router]);
 
   if (!activeCourse) {
     return (
@@ -104,27 +105,7 @@ function WorkspaceContent({ courseId }: { courseId?: string }) {
     }
   };
 
-  // Nav actions
   const activeIdx = flatLessons.findIndex((l) => l.id === activeLessonId);
-  const hasNext = activeIdx !== -1 && activeIdx < flatLessons.length - 1;
-  const hasPrev = activeIdx > 0;
-
-  const handleNextLesson = () => {
-    if (hasNext) {
-      setActiveLessonId(flatLessons[activeIdx + 1].id);
-    }
-  };
-
-  const handlePrevLesson = () => {
-    if (hasPrev) {
-      setActiveLessonId(flatLessons[activeIdx - 1].id);
-    }
-  };
-
-  // Progress maths
-  const progressPercent = flatLessons.length > 0 
-    ? Math.round((completedLessons.length / flatLessons.length) * 100) 
-    : 0;
 
   return (
     <div className="flex flex-col h-screen w-screen bg-white overflow-hidden text-slate-800">
