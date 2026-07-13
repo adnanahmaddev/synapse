@@ -5,8 +5,8 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import LessonBody from '@/components/LessonBody';
 import QuizCard from '@/components/QuizCard';
-import { ArrowLeft, ArrowRight, CheckCircle, Leaf, Share2 } from 'lucide-react';
-import { PRODUCT_NAME } from '@/utils/constants';
+import { ArrowLeft, ArrowRight, CheckCircle, Share2 } from 'lucide-react';
+import BrandLogo from '@/components/BrandLogo';
 
 function WorkspaceContent() {
   const router = useRouter();
@@ -61,7 +61,7 @@ function WorkspaceContent() {
   if (!activeCourse) {
     return (
       <div className="h-screen w-screen flex flex-col justify-center items-center bg-slate-900 text-white space-y-4">
-        <div className="w-10 h-10 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+        <div className="w-10 h-10 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin"></div>
         <span className="text-sm font-semibold text-slate-400">Loading learning environment...</span>
       </div>
     );
@@ -127,15 +127,7 @@ function WorkspaceContent() {
       <header className="bg-white border-b border-slate-200 px-6 py-3 shrink-0">
         <div className="flex items-center justify-between w-full">
           <div className="flex items-center gap-3">
-            {/* Synapse brand logo */}
-            <div className="flex items-center gap-2 cursor-pointer pl-1 select-none" onClick={() => router.push('/')}>
-              <div className="w-5.5 h-5.5 bg-gradient-to-tr from-emerald-400 to-emerald-600 rounded-md flex items-center justify-center text-white shadow-xs">
-                <Leaf className="w-3 h-3 text-white fill-emerald-100/20" />
-              </div>
-              <span className="text-lg font-serif italic font-normal text-slate-800 lowercase tracking-wide">
-                {PRODUCT_NAME}
-              </span>
-            </div>
+            <BrandLogo size="sm" textColor="text-slate-800" />
             <div className="border-l border-slate-200 h-4 mx-2"></div>
             <h2 className="text-base font-semibold text-slate-800 leading-tight">
               {activeCourse.title}
@@ -213,7 +205,7 @@ export default function Workspace() {
   return (
     <Suspense fallback={
       <div className="h-screen w-screen flex flex-col justify-center items-center bg-slate-900 text-white space-y-4">
-        <div className="w-10 h-10 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+        <div className="w-10 h-10 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin"></div>
         <span className="text-sm font-semibold text-slate-400">Loading learning environment...</span>
       </div>
     }>

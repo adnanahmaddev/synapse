@@ -81,12 +81,12 @@ export default function ActiveRecall({
     <div className="w-full border border-slate-100 bg-white rounded-2xl p-5 shadow-xs space-y-5">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 text-indigo-600 text-xs font-bold uppercase tracking-wider">
+        <div className="flex items-center gap-2 text-brand-600 text-xs font-bold uppercase tracking-wider">
           <Award className="w-4.5 h-4.5" />
           Active Recall Checkpoint
         </div>
         {isCompleted && (
-          <span className="text-[10px] bg-emerald-50 text-emerald-600 font-bold px-2 py-0.5 rounded-full flex items-center gap-1 border border-emerald-100">
+          <span className="text-[10px] bg-brand-50 text-brand-600 font-bold px-2 py-0.5 rounded-full flex items-center gap-1 border border-brand-100">
             <CheckCircle className="w-3 h-3" /> Passed
           </span>
         )}
@@ -101,7 +101,7 @@ export default function ActiveRecall({
       {!evalResult && !evalLoading ? (
         <div className="space-y-3">
           <textarea
-            className="w-full min-h-[90px] p-3 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-indigo-500 text-slate-800 placeholder-slate-400 leading-relaxed resize-none"
+            className="w-full min-h-[90px] p-3 text-xs border border-slate-200 rounded-xl focus:outline-none focus:border-brand-500 text-slate-800 placeholder-slate-400 leading-relaxed resize-none"
             placeholder="Summarize the core concept in your own words..."
             value={summary}
             onChange={(e) => setSummary(e.target.value)}
@@ -118,7 +118,7 @@ export default function ActiveRecall({
             className={`w-full py-2.5 px-4 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all cursor-pointer ${
               !summary.trim()
                 ? 'bg-slate-100 text-slate-400 border border-slate-100 cursor-not-allowed'
-                : 'bg-indigo-600 hover:bg-indigo-700 text-white shadow-sm'
+                : 'bg-brand-600 hover:bg-brand-700 text-white shadow-sm'
             }`}
           >
             Submit Recall Check
@@ -173,7 +173,7 @@ export default function ActiveRecall({
           {/* Correct items */}
           {evalResult.correctPoints?.length > 0 && (
             <div className="space-y-1.5">
-              <span className="text-[10px] uppercase font-bold text-emerald-600 flex items-center gap-1">
+              <span className="text-[10px] uppercase font-bold text-brand-600 flex items-center gap-1">
                 <CheckCircle className="w-3.5 h-3.5 shrink-0" />
                 Key Concepts Retained
               </span>
@@ -202,8 +202,8 @@ export default function ActiveRecall({
 
           {/* Suggestions */}
           {evalResult.suggestions && (
-            <div className="p-3 bg-indigo-50/50 border border-indigo-100/50 text-[11px] text-slate-600 rounded-xl leading-relaxed flex gap-2">
-              <AlertCircle className="w-3.5 h-3.5 shrink-0 text-indigo-500 mt-0.5" />
+            <div className="p-3 bg-brand-50/50 border border-brand-100/50 text-[11px] text-slate-600 rounded-xl leading-relaxed flex gap-2">
+              <AlertCircle className="w-3.5 h-3.5 shrink-0 text-brand-500 mt-0.5" />
               <span>{evalResult.suggestions}</span>
             </div>
           )}

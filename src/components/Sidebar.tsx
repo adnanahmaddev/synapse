@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { DEFAULT_OLLAMA_HOST, DEFAULT_OLLAMA_MODEL, PRODUCT_NAME } from '@/utils/constants';
+import BrandLogo from '@/components/BrandLogo';
 import { 
   Settings, 
   CheckCircle2, 
@@ -11,7 +12,6 @@ import {
   Cpu,
   Bookmark,
   X,
-  Leaf,
   Plus
 } from 'lucide-react';
 
@@ -104,15 +104,7 @@ export default function Sidebar({
       {/* Brand Header */}
       {!activeCourse && (
         <div className="p-5 border-b border-slate-100 flex items-center justify-between">
-          <div className="flex items-center gap-2.5 cursor-pointer" onClick={() => router.push('/')}>
-            {/* Leaf Icon */}
-            <div className="w-7 h-7 bg-gradient-to-tr from-emerald-400 to-emerald-600 rounded-lg flex items-center justify-center text-white shadow-sm">
-              <Leaf className="w-4 h-4 text-white fill-emerald-100/20" />
-            </div>
-            <span className="text-2xl font-serif italic font-normal text-slate-800 lowercase tracking-wide">
-              {PRODUCT_NAME}
-            </span>
-          </div>
+          <BrandLogo size="md" textColor="text-slate-800" />
         </div>
       )}
 
@@ -140,7 +132,7 @@ export default function Sidebar({
               </div>
               <div className="w-full bg-slate-200/60 rounded-full h-1 overflow-hidden mt-1.5">
                 <div 
-                  className="bg-indigo-600 h-full rounded-full transition-all duration-300"
+                  className="bg-brand-600 h-full rounded-full transition-all duration-300"
                   style={{ width: `${progressPercent}%` }}
                 ></div>
               </div>
@@ -155,14 +147,14 @@ export default function Sidebar({
                   <button
                     key={les.id}
                     onClick={() => onSelectLesson?.(les.id)}
-                    className={`w-full flex items-start gap-2.5 text-left text-sm py-2 px-2.5 rounded-lg transition-all ${
+                    className={`w-full flex items-start gap-2.5 text-left text-sm py-2 px-2.5 rounded-lg border transition-all focus:outline-none ${
                       isActive 
-                        ? 'bg-indigo-50/70 text-indigo-600 font-semibold' 
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100/50 font-medium'
+                        ? 'bg-brand-50 text-brand-600 font-semibold border-brand-100/50' 
+                        : 'border-transparent text-slate-600 hover:text-slate-900 hover:bg-slate-100/50 font-medium'
                     }`}
                   >
                     <span className={`text-sm font-bold shrink-0 font-mono w-4 text-left ${
-                      isActive ? 'text-indigo-600' : 'text-slate-400'
+                      isActive ? 'text-brand-600' : 'text-slate-400'
                     }`}>
                       {index + 1}
                     </span>
@@ -205,7 +197,7 @@ export default function Sidebar({
       {!activeCourse && (
         <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-indigo-600 text-white flex items-center justify-center text-sm font-semibold shadow-sm overflow-hidden">
+            <div className="w-9 h-9 rounded-full bg-brand-600 text-white flex items-center justify-center text-sm font-semibold shadow-sm overflow-hidden">
               AA
             </div>
             <div>
@@ -230,7 +222,7 @@ export default function Sidebar({
             <div className="space-y-6">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <span className="font-bold text-slate-800 flex items-center gap-1.5 text-sm">
-                  <Sliders className="w-4 h-4 text-indigo-500" />
+                  <Sliders className="w-4 h-4 text-brand-500" />
                   Model Configuration
                 </span>
                 <button 
@@ -249,7 +241,7 @@ export default function Sidebar({
                     onClick={() => setProvider('gemini')}
                     className={`py-2 px-3 rounded-lg border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
                       provider === 'gemini'
-                        ? 'border-indigo-600 bg-indigo-50 text-indigo-600'
+                        ? 'border-brand-600 bg-brand-50 text-brand-600'
                         : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                     }`}
                   >
@@ -260,7 +252,7 @@ export default function Sidebar({
                     onClick={() => setProvider('ollama')}
                     className={`py-2 px-3 rounded-lg border text-xs font-semibold flex items-center justify-center gap-1.5 transition-all ${
                       provider === 'ollama'
-                        ? 'border-indigo-600 bg-indigo-50 text-indigo-600'
+                        ? 'border-brand-600 bg-brand-50 text-brand-600'
                         : 'border-slate-200 text-slate-600 hover:bg-slate-50'
                     }`}
                   >
@@ -279,7 +271,7 @@ export default function Sidebar({
                     placeholder="Paste GEMINI_API_KEY..."
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
-                    className="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500 text-slate-800"
+                    className="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 text-slate-800"
                   />
                   <p className="text-[10px] text-slate-400 leading-relaxed">
                     Uses <strong>gemini-2.5-flash</strong> for fast structured syllabus layout.
@@ -297,7 +289,7 @@ export default function Sidebar({
                       placeholder="http://localhost:11434"
                       value={ollamaHost}
                       onChange={(e) => setOllamaHost(e.target.value)}
-                      className="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500 text-slate-800"
+                      className="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 text-slate-800"
                     />
                   </div>
                   <div className="space-y-2">
@@ -307,7 +299,7 @@ export default function Sidebar({
                       placeholder={DEFAULT_OLLAMA_MODEL}
                       value={ollamaModel}
                       onChange={(e) => setOllamaModel(e.target.value)}
-                      className="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-indigo-500 text-slate-800"
+                      className="w-full text-xs px-3 py-2 border border-slate-200 rounded-lg focus:outline-none focus:border-brand-500 text-slate-800"
                     />
                   </div>
                 </div>
