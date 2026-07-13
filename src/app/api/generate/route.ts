@@ -34,12 +34,12 @@ const syllabusSchema = {
                 content: { type: SchemaType.STRING, description: "The main text explanation of the lesson, formatted in Markdown." },
                 componentType: {
                   type: SchemaType.STRING,
-                  description: "The interactive widget to mount: 'quiz', 'mermaid', 'playground', or 'visualizer'. Choose the one that best fits the subject matter.",
-                  enum: ["quiz", "playground", "visualizer", "mermaid"]
+                  description: "The interactive widget to mount. Must be 'quiz'.",
+                  enum: ["quiz"]
                 },
                 quizData: {
                   type: SchemaType.OBJECT,
-                  description: "Required only if componentType is 'quiz'. A multiple-choice question.",
+                  description: "Required multiple-choice question for assessing lesson comprehension.",
                   properties: {
                     question: { type: SchemaType.STRING },
                     options: {
@@ -51,51 +51,9 @@ const syllabusSchema = {
                     explanation: { type: SchemaType.STRING, description: "The AI explanation shown when the user answers." }
                   },
                   required: ["question", "options", "correctIndex", "explanation"]
-                },
-                codeTemplate: {
-                  type: SchemaType.OBJECT,
-                  description: "Required only if componentType is 'playground'. Boilerplate code for interactive HTML/JS editor.",
-                  properties: {
-                    html: { type: SchemaType.STRING, description: "HTML code template." },
-                    css: { type: SchemaType.STRING, description: "CSS stylesheet code template." },
-                    js: { type: SchemaType.STRING, description: "JavaScript source template." }
-                  },
-                  required: ["html", "css", "js"]
-                },
-                visualizerData: {
-                  type: SchemaType.OBJECT,
-                  description: "Required only if componentType is 'visualizer'. Settings for interactive slider math graphs.",
-                  properties: {
-                    type: {
-                      type: SchemaType.STRING,
-                      description: "The mathematical graph formula preset.",
-                      enum: ["linear", "sine", "interest"]
-                    },
-                    title: { type: SchemaType.STRING, description: "Title of the visual graph." },
-                    equation: { type: SchemaType.STRING, description: "Formula to display (LaTeX or string notation, e.g., y = mx + c)." },
-                    params: {
-                      type: SchemaType.ARRAY,
-                      description: "List of parameters controllable by slider inputs.",
-                      items: {
-                        type: SchemaType.OBJECT,
-                        properties: {
-                          name: { type: SchemaType.STRING, description: "Parameter name (e.g. 'm', 'c', 'A', 'f')." },
-                          min: { type: SchemaType.NUMBER },
-                          max: { type: SchemaType.NUMBER },
-                          defaultValue: { type: SchemaType.NUMBER }
-                        },
-                        required: ["name", "min", "max", "defaultValue"]
-                      }
-                    }
-                  },
-                  required: ["type", "title", "equation", "params"]
-                },
-                mermaidCode: {
-                  type: SchemaType.STRING,
-                  description: "Required only if componentType is 'mermaid'. A valid, self-contained Mermaid.js diagram definition (e.g., graph TD...)."
                 }
               },
-              required: ["id", "title", "concept", "content", "componentType"]
+              required: ["id", "title", "concept", "content", "componentType", "quizData"]
             }
           }
         },

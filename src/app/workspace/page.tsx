@@ -4,11 +4,7 @@ import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import LessonBody from '@/components/LessonBody';
-import ActiveRecall from '@/components/ActiveRecall';
 import QuizCard from '@/components/QuizCard';
-import CodePlayground from '@/components/CodePlayground';
-import MathVisualizer from '@/components/MathVisualizer';
-import MermaidDiagram from '@/components/MermaidDiagram';
 import { ArrowLeft, ArrowRight, CheckCircle, Home } from 'lucide-react';
 
 function WorkspaceContent() {
@@ -175,94 +171,78 @@ function WorkspaceContent() {
         </header>
 
         {/* Core Workspace Panels */}
-        <div className="flex-1 flex min-h-0 bg-slate-50">
+        <div className="flex-1 overflow-y-auto bg-white p-6 md:p-10 space-y-8">
           {activeLesson ? (
             <>
-              {/* Left Pane (Lesson details + recall area) */}
-              <div className="w-1/2 border-r border-slate-200 overflow-y-auto p-6 flex flex-col justify-between space-y-8 bg-white">
-                <div className="space-y-6">
-                  {/* Stepper position tag */}
-                  <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                    Lesson {activeIdx + 1} of {flatLessons.length}
-                  </div>
-
-                  <LessonBody 
-                    title={activeLesson.title} 
-                    content={activeLesson.content} 
-                  />
-                </div>
-
-                {/* Active recall textbox feedback at bottom */}
-                <div className="pt-6 border-t border-slate-100">
-                  <ActiveRecall
-                    lessonId={activeLesson.id}
-                    lessonConcept={activeLesson.concept}
-                    lessonContent={activeLesson.content}
-                    onPass={handlePassActiveRecall}
-                    isCompleted={completedLessons.includes(activeLesson.id)}
-                  />
-                </div>
+              {/* Stepper position tag */}
+              <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                Lesson {activeIdx + 1} of {flatLessons.length}
               </div>
 
-              {/* Right Pane (Interactive Widget Sandbox) */}
-              <div className="w-1/2 overflow-y-auto p-6 flex flex-col justify-between space-y-6 bg-slate-50">
-                {/* Mounted Widget Area */}
-                <div className="flex-1 min-h-0">
-                  {activeLesson.componentType === 'quiz' && (
-                    <QuizCard quizData={activeLesson.quizData} />
-                  )}
-                  {activeLesson.componentType === 'playground' && (
-                    <CodePlayground codeTemplate={activeLesson.codeTemplate} />
-                  )}
-                  {activeLesson.componentType === 'visualizer' && (
-                    <MathVisualizer visualizerData={activeLesson.visualizerData} />
-                  )}
-                  {activeLesson.componentType === 'mermaid' && (
-                    <MermaidDiagram mermaidCode={activeLesson.mermaidCode} />
-                  )}
+              {/* Lesson details */}
+              <LessonBody 
+                title={activeLesson.title} 
+                content={activeLesson.content} 
+              />
+
+              {/* Interactive MCQ Quiz */}
+              <div className="min-h-0">
+                <QuizCard 
+                  quizData={activeLesson.quizData || {
+                    question: `Review checkpoint: Have you understood the core concept of "${activeLesson.title}"?`,
+                    options: [
+                      "Yes, I understand it fully",
+                      "I need to review it again",
+                      "I'm not sure",
+                      "I didn't read it"
+                    ],
+                    correctIndex: 0,
+                    explanation: "Self-assessment passed! Keep going."
+                  }} 
+                  onPass={handlePassActiveRecall}
+                />
+              </div>
+
+              {/* Lesson pagination controls */}
+              <div className="flex justify-between items-center select-none pt-2">
+                <button
+                  onClick={handlePrevLesson}
+                  disabled={!hasPrev}
+                  className={`flex items-center gap-1 px-3.5 py-2 rounded-lg font-bold text-xs transition-all ${
+                    hasPrev 
+                      ? 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-slate-200 cursor-pointer shadow-xs' 
+                      : 'text-slate-300 border border-slate-100 cursor-not-allowed'
+                  }`}
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" />
+                  Back
+                </button>
+
+                <div className="text-[10px] font-bold text-slate-400">
+                  {activeIdx + 1} / {flatLessons.length}
                 </div>
 
-                {/* Lesson pagination controls */}
-                <div className="flex justify-between items-center bg-white border border-slate-200/80 p-3 rounded-xl shadow-xs shrink-0 select-none">
+                {hasNext ? (
                   <button
-                    onClick={handlePrevLesson}
-                    disabled={!hasPrev}
-                    className={`flex items-center gap-1 px-3.5 py-2 rounded-lg font-bold text-xs transition-all ${
-                      hasPrev 
-                        ? 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 border border-slate-200 cursor-pointer shadow-xs' 
-                        : 'text-slate-300 border border-slate-100 cursor-not-allowed'
-                    }`}
+                    onClick={handleNextLesson}
+                    className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-3.5 rounded-lg text-xs transition-all shadow-sm cursor-pointer"
                   >
-                    <ArrowLeft className="w-3.5 h-3.5" />
-                    Back
+                    Next
+                    <ArrowRight className="w-3.5 h-3.5" />
                   </button>
-
-                  <div className="text-[10px] font-bold text-slate-400">
-                    {activeIdx + 1} / {flatLessons.length}
-                  </div>
-
-                  {hasNext ? (
-                    <button
-                      onClick={handleNextLesson}
-                      className="flex items-center gap-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-3.5 rounded-lg text-xs transition-all shadow-sm cursor-pointer"
-                    >
-                      Next
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                  ) : (
-                    <button
-                      onClick={() => router.push('/')}
-                      className="flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3.5 rounded-lg text-xs transition-all shadow-sm cursor-pointer"
-                    >
-                      Complete Course
-                      <CheckCircle className="w-3.5 h-3.5" />
-                    </button>
-                  )}
-                </div>
+                ) : (
+                  <button
+                    onClick={() => router.push('/')}
+                    className="flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 px-3.5 rounded-lg text-xs transition-all shadow-sm cursor-pointer"
+                  >
+                    Complete Course
+                    <CheckCircle className="w-3.5 h-3.5" />
+                  </button>
+                )}
               </div>
             </>
           ) : (
-            <div className="flex-1 flex items-center justify-center text-slate-400 italic text-xs">
+            <div className="h-full flex items-center justify-center text-slate-400 italic text-xs">
               Select a lesson from the syllabus on the left to begin.
             </div>
           )}

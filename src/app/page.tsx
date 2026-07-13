@@ -110,10 +110,10 @@ export default function Home() {
           {/* Main Titles */}
           <div className="text-center space-y-3">
             <h1 className="text-5xl font-extrabold tracking-tight text-white leading-tight">
-              The perfect course, <span className="font-serif italic font-normal text-indigo-300">every time.</span>
+              Master any topic, <span className="font-serif italic font-normal text-emerald-400">organically.</span>
             </h1>
             <p className="text-slate-400 text-sm max-w-md mx-auto leading-relaxed">
-              Type any question or concept. Get an interactive course, custom-tailored just for you.
+              Map any subject into a dynamic syllabus. Retain knowledge through active recall, code playgrounds, and visual widgets.
             </p>
           </div>
 
@@ -124,7 +124,7 @@ export default function Home() {
             {/* Main Textarea input */}
             <textarea
               className="w-full min-h-[120px] p-5 text-slate-800 text-sm placeholder-slate-400 focus:outline-none resize-none"
-              placeholder="What caused the 2008 financial crisis? / Learn React Hooks / CSS Grid principles..."
+              placeholder="Enter a subject you want to master today (e.g. 'How Photosynthesis Works', 'CSS Grid', 'Sine Waves')..."
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={(e) => {
@@ -194,7 +194,7 @@ export default function Home() {
 
         {/* Bottom footer text */}
         <div className="text-[10px] text-slate-500 select-none z-10 mt-6">
-          © {new Date().getFullYear()} {PRODUCT_NAME}. Developed locally for study and prep.
+          © {new Date().getFullYear()} {PRODUCT_NAME}. Cultivating custom paths to understanding.
         </div>
 
         {/* Loading Overlay */}

@@ -9,17 +9,17 @@ export const DEFAULT_OLLAMA_MODEL = 'gemma4:e4b';
 export const DEFAULT_GEMINI_MODEL = 'gemini-2.5-flash';
 
 export const QUICK_START_TOPICS = [
-  { 
-    title: "Forward Deployed Engineering", 
-    text: "Explain the role and lifecycle of a Forward Deployed Engineer (FDE)" 
+  {
+    title: "How Photosynthesis Works",
+    text: "Explain the process of photosynthesis, light reactions, and carbon fixation. Include a Mermaid flowchart."
   },
-  { 
-    title: "Explain Offside in Soccer", 
-    text: "How does the offside rule work in soccer/football? Include diagrams." 
+  {
+    title: "Visualizing Sine Waves",
+    text: "Explain trigonometric sine waves, amplitude, and frequency. Include a parameter slider graph."
   },
-  { 
-    title: "Summarize Atomic Habits", 
-    text: "Summarize the core concepts and implementation frameworks of Atomic Habits by James Clear" 
+  {
+    title: "How Neural Networks Learn",
+    text: "Explain how artificial neural networks perform backpropagation and gradient descent. Include a Mermaid diagram."
   }
 ];
 
@@ -34,11 +34,7 @@ export const LOADING_STEPS_TEXTS = [
 export const SYLLABUS_SYSTEM_PROMPT = `
 You are an expert tutor that designs highly engaging, interactive, bite-sized courses.
 Given a topic, you must generate a syllabus. Keep it concise: 2-3 modules, with 3-5 total lessons in the entire course.
-For each lesson, choose the best interactive component type to reinforce learning:
-1. 'quiz': Multiple-choice question. Use when checking conceptual recall.
-2. 'playground': Split code sandbox. Use when teaching web design, CSS layouts, or JS basics.
-3. 'visualizer': Interactive SVG graph with sliders. Use when teaching formulas, compound interest, physics waves, linear models.
-4. 'mermaid': Mindmap or flowchart. Use when teaching system design, biological steps, historical flows, git branch actions.
+For each lesson, you must include a multiple-choice question to reinforce learning. Set the componentType to 'quiz' and populate the quizData field. Do not use any other component types.
 
 CRITICAL JSON RULES:
 - Output MUST be a single, valid JSON object matching the requested schema.
