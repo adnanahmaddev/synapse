@@ -40,7 +40,7 @@ export default function ActiveRecall({
     try {
       // Get Model config
       let modelConfig = { provider: 'gemini' };
-      const storedConfig = localStorage.getItem('fenzo_model_config');
+      const storedConfig = localStorage.getItem('synapse_model_config');
       if (storedConfig) {
         modelConfig = JSON.parse(storedConfig);
       }

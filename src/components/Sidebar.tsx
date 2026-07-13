@@ -44,7 +44,7 @@ export default function Sidebar({
 
   useEffect(() => {
     // Load Settings
-    const storedConfig = localStorage.getItem('fenzo_model_config');
+    const storedConfig = localStorage.getItem('synapse_model_config');
     if (storedConfig) {
       try {
         const config = JSON.parse(storedConfig);
@@ -58,7 +58,7 @@ export default function Sidebar({
     }
 
     // Load History
-    const storedHistory = localStorage.getItem('fenzo_course_history');
+    const storedHistory = localStorage.getItem('synapse_course_history');
     if (storedHistory) {
       try {
         setHistory(JSON.parse(storedHistory));
@@ -75,7 +75,7 @@ export default function Sidebar({
       host: provider === 'ollama' ? ollamaHost : '',
       model: provider === 'gemini' ? 'gemini-2.5-flash' : ollamaModel
     };
-    localStorage.setItem('fenzo_model_config', JSON.stringify(config));
+    localStorage.setItem('synapse_model_config', JSON.stringify(config));
     setShowSettings(false);
   };
 
@@ -84,7 +84,7 @@ export default function Sidebar({
   };
 
   const loadPastCourse = (course: any) => {
-    localStorage.setItem('fenzo_active_course_id', course.id);
+    localStorage.setItem('synapse_active_course_id', course.id);
     router.push(`/workspace?courseId=${course.id}`);
   };
 

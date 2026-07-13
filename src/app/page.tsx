@@ -30,7 +30,7 @@ export default function Home() {
 
   // Load configuration & history
   useEffect(() => {
-    const storedConfig = localStorage.getItem('fenzo_model_config');
+    const storedConfig = localStorage.getItem('synapse_model_config');
     if (storedConfig) {
       try {
         const config = JSON.parse(storedConfig);
@@ -43,7 +43,7 @@ export default function Home() {
       }
     }
 
-    const storedHistory = localStorage.getItem('fenzo_course_history');
+    const storedHistory = localStorage.getItem('synapse_course_history');
     if (storedHistory) {
       try {
         setHistory(JSON.parse(storedHistory));
@@ -71,7 +71,7 @@ export default function Home() {
       host: provider === 'ollama' ? ollamaHost : '',
       model: provider === 'gemini' ? 'gemini-2.5-flash' : ollamaModel
     };
-    localStorage.setItem('fenzo_model_config', JSON.stringify(config));
+    localStorage.setItem('synapse_model_config', JSON.stringify(config));
     setShowSettings(false);
   };
 
@@ -84,7 +84,7 @@ export default function Home() {
 
     try {
       let modelConfig = { provider: 'gemini' };
-      const storedConfig = localStorage.getItem('fenzo_model_config');
+      const storedConfig = localStorage.getItem('synapse_model_config');
       if (storedConfig) {
         modelConfig = JSON.parse(storedConfig);
       }
@@ -119,8 +119,8 @@ export default function Home() {
 
       let currentHistory = [newCourse, ...history];
       setHistory(currentHistory);
-      localStorage.setItem('fenzo_course_history', JSON.stringify(currentHistory));
-      localStorage.setItem('fenzo_active_course_id', newCourseId);
+      localStorage.setItem('synapse_course_history', JSON.stringify(currentHistory));
+      localStorage.setItem('synapse_active_course_id', newCourseId);
 
       router.push(`/workspace?courseId=${newCourseId}`);
       // Don't setLoading(false) here — let the overlay persist through navigation
@@ -134,7 +134,7 @@ export default function Home() {
   };
 
   const handleSelectCourse = (course: any) => {
-    localStorage.setItem('fenzo_active_course_id', course.id);
+    localStorage.setItem('synapse_active_course_id', course.id);
     router.push(`/workspace?courseId=${course.id}`);
   };
 

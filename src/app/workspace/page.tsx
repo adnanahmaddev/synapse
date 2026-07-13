@@ -11,7 +11,7 @@ import BrandLogo from '@/components/BrandLogo';
 function loadCourseFromStorage(courseId: string | undefined) {
   if (!courseId || typeof window === 'undefined') return null;
   try {
-    const storedHistory = localStorage.getItem('fenzo_course_history');
+    const storedHistory = localStorage.getItem('synapse_course_history');
     if (!storedHistory) return null;
     const history = JSON.parse(storedHistory);
     return history.find((c: any) => c.id === courseId) ?? null;
@@ -86,14 +86,14 @@ function WorkspaceContent({ courseId }: { courseId?: string }) {
     setCompletedLessons(updatedCompleted);
 
     // Sync back to local storage history list
-    const storedHistory = localStorage.getItem('fenzo_course_history');
+    const storedHistory = localStorage.getItem('synapse_course_history');
     if (storedHistory) {
       try {
         let history = JSON.parse(storedHistory);
         const index = history.findIndex((c: any) => c.id === courseId);
         if (index !== -1) {
           history[index].completedLessons = updatedCompleted;
-          localStorage.setItem('fenzo_course_history', JSON.stringify(history));
+          localStorage.setItem('synapse_course_history', JSON.stringify(history));
           
           // Sync active course state
           setActiveCourse(history[index]);
