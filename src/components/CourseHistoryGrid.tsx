@@ -22,11 +22,15 @@ export default function CourseHistoryGrid({ history, onSelectCourse }: CourseHis
       {history.slice(0, 6).map((course) => {
         // Calculate total lessons
         const flatLessons: any[] = [];
-        course.syllabus?.modules?.forEach((mod: any) => {
-          mod.lessons?.forEach((les: any) => {
-            flatLessons.push(les);
+        if (Array.isArray(course.syllabus?.modules)) {
+          course.syllabus.modules.forEach((mod: any) => {
+            if (Array.isArray(mod.lessons)) {
+              mod.lessons.forEach((les: any) => {
+                flatLessons.push(les);
+              });
+            }
           });
-        });
+        }
 
         const totalLessons = flatLessons.length;
         const completedCount = course.completedLessons?.length || 0;

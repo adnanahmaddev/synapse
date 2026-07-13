@@ -89,11 +89,15 @@ export default function Sidebar({
   };
 
   const flatLessonsList: any[] = [];
-  activeCourse?.syllabus?.modules?.forEach((mod: any) => {
-    mod.lessons?.forEach((les: any) => {
-      flatLessonsList.push(les);
+  if (Array.isArray(activeCourse?.syllabus?.modules)) {
+    activeCourse.syllabus.modules.forEach((mod: any) => {
+      if (Array.isArray(mod.lessons)) {
+        mod.lessons.forEach((les: any) => {
+          flatLessonsList.push(les);
+        });
+      }
     });
-  });
+  }
 
   const progressPercent = flatLessonsList.length > 0 
     ? Math.round((completedLessons.length / flatLessonsList.length) * 100) 

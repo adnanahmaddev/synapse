@@ -123,11 +123,12 @@ export default function Home() {
       localStorage.setItem('fenzo_active_course_id', newCourseId);
 
       router.push(`/workspace?courseId=${newCourseId}`);
+      // Don't setLoading(false) here — let the overlay persist through navigation
+      // to avoid a flash of the home page. The workspace page takes over from here.
 
     } catch (err: any) {
       console.error(err);
       setError(err.message || "Something went wrong while generating the course. Please try again.");
-    } finally {
       setLoading(false);
     }
   };
@@ -261,7 +262,7 @@ export default function Home() {
 
       {/* Generating/Loading Overlay Modal */}
       {loading && (
-        <div className="absolute inset-0 bg-slate-950/85 backdrop-blur-xs z-50 flex flex-col justify-center items-center p-6 select-none">
+        <div className="fixed inset-0 bg-slate-950/85 backdrop-blur-xs z-50 flex flex-col justify-center items-center p-6 select-none">
           <div className="bg-slate-900 border border-slate-800/80 rounded-2xl max-w-sm w-full p-6 text-center space-y-6 shadow-2xl animate-scale-in">
             <div className="relative flex justify-center items-center">
               <div className="w-12 h-12 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin"></div>
@@ -269,7 +270,7 @@ export default function Home() {
             </div>
             <div className="space-y-1">
               <h3 className="text-sm font-bold text-white">Generating Course</h3>
-              <p className="text-xs text-slate-400 min-h-[36px] transition-all duration-300">
+              <p className="text-xs text-slate-400 transition-all duration-300">
                 {LOADING_STEPS_TEXTS[loadingStep]}
               </p>
             </div>
@@ -285,7 +286,7 @@ export default function Home() {
 
       {/* Model Settings Drawer */}
       {showSettings && (
-        <div className="absolute inset-0 bg-slate-950/60 backdrop-blur-xs flex justify-end z-50 animate-fade-in">
+        <div className="fixed inset-0 bg-slate-950/60 backdrop-blur-xs flex justify-end z-50 animate-fade-in">
           <div className="w-full max-w-[280px] bg-slate-900 h-full shadow-2xl p-5 flex flex-col justify-between border-l border-slate-800/80 animate-slide-up text-slate-100">
             <div className="space-y-6">
               <div className="flex items-center justify-between border-b border-slate-850 pb-3">

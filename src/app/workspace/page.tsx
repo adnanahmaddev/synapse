@@ -1,62 +1,66 @@
 "use client";
 
-import React, { useState, useEffect, Suspense } from 'react';
-import { useSearchParams, useRouter } from 'next/navigation';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/Sidebar';
 import LessonBody from '@/components/LessonBody';
 import QuizCard from '@/components/QuizCard';
 import { ArrowLeft, ArrowRight, CheckCircle, Share2 } from 'lucide-react';
 import BrandLogo from '@/components/BrandLogo';
 
-function WorkspaceContent() {
+function loadCourseFromStorage(courseId: string | undefined) {
+  if (!courseId || typeof window === 'undefined') return null;
+  try {
+    const storedHistory = localStorage.getItem('fenzo_course_history');
+    if (!storedHistory) return null;
+    const history = JSON.parse(storedHistory);
+    return history.find((c: any) => c.id === courseId) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+function flattenLessons(course: any): any[] {
+  const list: any[] = [];
+  if (Array.isArray(course?.syllabus?.modules)) {
+    course.syllabus.modules.forEach((mod: any) => {
+      if (Array.isArray(mod.lessons)) mod.lessons.forEach((les: any) => list.push(les));
+    });
+  }
+  return list;
+}
+
+function WorkspaceContent({ courseId }: { courseId?: string }) {
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const courseId = searchParams.get('courseId');
 
-  const [activeCourse, setActiveCourse] = useState<any | null>(null);
-  const [activeLessonId, setActiveLessonId] = useState<string>('');
-  const [completedLessons, setCompletedLessons] = useState<string[]>([]);
-  const [flatLessons, setFlatLessons] = useState<any[]>([]);
+  // Lazy initializer: reads localStorage synchronously on first render so there
+  // is no flash of the "Loading…" spinner when navigating from the home page.
+  const [activeCourse, setActiveCourse] = useState<any | null>(() =>
+    loadCourseFromStorage(courseId)
+  );
+  const [activeLessonId, setActiveLessonId] = useState<string>(() => {
+    const course = loadCourseFromStorage(courseId);
+    const lessons = flattenLessons(course);
+    return lessons[0]?.id ?? '';
+  });
+  const [completedLessons, setCompletedLessons] = useState<string[]>(() => {
+    const course = loadCourseFromStorage(courseId);
+    return course?.completedLessons ?? [];
+  });
+  const [flatLessons, setFlatLessons] = useState<any[]>(() =>
+    flattenLessons(loadCourseFromStorage(courseId))
+  );
 
-  // Load course details
+  // Redirect if no valid course found
   useEffect(() => {
     if (!courseId) {
       router.push('/');
       return;
     }
-
-    const storedHistory = localStorage.getItem('fenzo_course_history');
-    if (storedHistory) {
-      try {
-        const history = JSON.parse(storedHistory);
-        const course = history.find((c: any) => c.id === courseId);
-        
-        if (course) {
-          setActiveCourse(course);
-          setCompletedLessons(course.completedLessons || []);
-          
-          // Flatten lessons for easier navigation checks
-          const list: any[] = [];
-          course.syllabus?.modules?.forEach((mod: any) => {
-            mod.lessons?.forEach((les: any) => {
-              list.push(les);
-            });
-          });
-          setFlatLessons(list);
-
-          // Default active lesson to first lesson
-          if (list.length > 0) {
-            setActiveLessonId(list[0].id);
-          }
-        } else {
-          router.push('/');
-        }
-      } catch (e) {
-        console.error(e);
-        router.push('/');
-      }
+    if (!activeCourse) {
+      router.push('/');
     }
-  }, [courseId, router]);
+  }, [courseId, activeCourse, router]);
 
   if (!activeCourse) {
     return (
@@ -66,6 +70,7 @@ function WorkspaceContent() {
       </div>
     );
   }
+
 
   // Get currently active lesson details
   const activeLesson = flatLessons.find((l) => l.id === activeLessonId);
@@ -200,16 +205,15 @@ function WorkspaceContent() {
   );
 }
 
-// Suspense wrap required for useSearchParams() hooks in Next.js App Router static optimization layouts
-export default function Workspace() {
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default function Workspace({ searchParams }: PageProps) {
+  const resolvedParams = React.use(searchParams);
+  const courseId = resolvedParams.courseId as string | undefined;
+
   return (
-    <Suspense fallback={
-      <div className="h-screen w-screen flex flex-col justify-center items-center bg-slate-900 text-white space-y-4">
-        <div className="w-10 h-10 border-4 border-brand-500/20 border-t-brand-500 rounded-full animate-spin"></div>
-        <span className="text-sm font-semibold text-slate-400">Loading learning environment...</span>
-      </div>
-    }>
-      <WorkspaceContent />
-    </Suspense>
+    <WorkspaceContent courseId={courseId} />
   );
 }
