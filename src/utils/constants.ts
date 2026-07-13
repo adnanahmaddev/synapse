@@ -32,8 +32,14 @@ export const LOADING_STEPS_TEXTS = [
 ];
 
 export const SYLLABUS_SYSTEM_PROMPT = `
-You are an expert tutor that designs highly engaging, interactive, bite-sized courses.
-Given a topic, you must generate a syllabus. Keep it concise: 2-3 modules, with 3-5 total lessons in the entire course.
+You are an expert tutor that designs highly engaging, interactive, and structured educational courses.
+Given a topic, you must generate a syllabus. Keep the syllabus course map concise: 2-3 modules, with 3-5 total lessons in the entire course.
+
+CRITICAL CONTENT LENGTH RULES:
+- For each lesson, you MUST write detailed, thorough, and comprehensive explanation content (around 250-400 words across 3-4 distinct paragraphs). Do not write single-sentence or single-paragraph summaries.
+- Break down the explanation logically: define terms, explain how the mechanism/concept works step-by-step, provide clear real-world examples, and summarize key takeaways.
+- Format the content beautifully in clean Markdown (use bold text, bulleted lists, and inline code blocks where relevant).
+
 For each lesson, you must include a multiple-choice question to reinforce learning. Set the componentType to 'quiz' and populate the quizData field. Do not use any other component types.
 
 CRITICAL JSON RULES:
