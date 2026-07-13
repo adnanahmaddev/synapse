@@ -171,40 +171,43 @@ function WorkspaceContent() {
         </header>
 
         {/* Core Workspace Panels */}
-        <div className="flex-1 overflow-y-auto bg-white p-6 md:p-10 space-y-8">
+        <div className="flex-1 flex flex-col min-h-0 bg-white">
           {activeLesson ? (
             <>
-              {/* Stepper position tag */}
-              <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
-                Lesson {activeIdx + 1} of {flatLessons.length}
-              </div>
+              {/* Scrollable Content Area */}
+              <div className="flex-1 overflow-y-auto p-6 md:p-10 space-y-8">
+                {/* Stepper position tag */}
+                <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                  Lesson {activeIdx + 1} of {flatLessons.length}
+                </div>
 
-              {/* Lesson details */}
-              <LessonBody 
-                title={activeLesson.title} 
-                content={activeLesson.content} 
-              />
-
-              {/* Interactive MCQ Quiz */}
-              <div className="min-h-0">
-                <QuizCard 
-                  quizData={activeLesson.quizData || {
-                    question: `Review checkpoint: Have you understood the core concept of "${activeLesson.title}"?`,
-                    options: [
-                      "Yes, I understand it fully",
-                      "I need to review it again",
-                      "I'm not sure",
-                      "I didn't read it"
-                    ],
-                    correctIndex: 0,
-                    explanation: "Self-assessment passed! Keep going."
-                  }} 
-                  onPass={handlePassActiveRecall}
+                {/* Lesson details */}
+                <LessonBody 
+                  title={activeLesson.title} 
+                  content={activeLesson.content} 
                 />
+
+                {/* Interactive MCQ Quiz */}
+                <div className="min-h-0">
+                  <QuizCard 
+                    quizData={activeLesson.quizData || {
+                      question: `Review checkpoint: Have you understood the core concept of "${activeLesson.title}"?`,
+                      options: [
+                        "Yes, I understand it fully",
+                        "I need to review it again",
+                        "I'm not sure",
+                        "I didn't read it"
+                      ],
+                      correctIndex: 0,
+                      explanation: "Self-assessment passed! Keep going."
+                    }} 
+                    onPass={handlePassActiveRecall}
+                  />
+                </div>
               </div>
 
-              {/* Lesson pagination controls */}
-              <div className="flex justify-between items-center select-none pt-2">
+              {/* Sticky pagination footer at the bottom of viewport */}
+              <div className="flex justify-between items-center bg-white border-t border-slate-100 px-6 md:px-10 py-4 select-none shrink-0">
                 <button
                   onClick={handlePrevLesson}
                   disabled={!hasPrev}
@@ -242,7 +245,7 @@ function WorkspaceContent() {
               </div>
             </>
           ) : (
-            <div className="h-full flex items-center justify-center text-slate-400 italic text-xs">
+            <div className="flex-1 flex items-center justify-center text-slate-400 italic text-xs">
               Select a lesson from the syllabus on the left to begin.
             </div>
           )}
