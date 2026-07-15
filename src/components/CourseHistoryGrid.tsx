@@ -2,10 +2,11 @@
 
 import React from 'react';
 import { Bookmark, ArrowRight, CheckCircle } from 'lucide-react';
+import { Course, Lesson } from '@/types';
 
 interface CourseHistoryGridProps {
-  history: any[];
-  onSelectCourse: (course: any) => void;
+  history: Course[];
+  onSelectCourse: (course: Course) => void;
 }
 
 export default function CourseHistoryGrid({ history, onSelectCourse }: CourseHistoryGridProps) {
@@ -21,11 +22,11 @@ export default function CourseHistoryGrid({ history, onSelectCourse }: CourseHis
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full select-none">
       {history.slice(0, 6).map((course) => {
         // Calculate total lessons
-        const flatLessons: any[] = [];
+        const flatLessons: Lesson[] = [];
         if (Array.isArray(course.syllabus?.modules)) {
-          course.syllabus.modules.forEach((mod: any) => {
+          course.syllabus.modules.forEach((mod) => {
             if (Array.isArray(mod.lessons)) {
-              mod.lessons.forEach((les: any) => {
+              mod.lessons.forEach((les) => {
                 flatLessons.push(les);
               });
             }

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import clientPromise from '@/utils/mongodb';
+import { Course } from '@/types';
 
 const USER_ID = 'local-user';
 
@@ -38,7 +39,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ success: true, count: 0 });
       }
 
-      const operations = body.courses.map((course: any) => ({
+      const operations = body.courses.map((course: Course) => ({
         updateOne: {
           filter: { id: course.id },
           update: { $set: course },

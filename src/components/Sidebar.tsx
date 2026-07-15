@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { DEFAULT_OLLAMA_HOST, DEFAULT_OLLAMA_MODEL } from '@/utils/constants';
-
 import BrandLogo from '@/components/BrandLogo';
+import { Course, Lesson } from '@/types';
 import { 
   Settings, 
   Sliders, 
@@ -17,7 +17,7 @@ import {
 
 
 interface SidebarProps {
-  activeCourse?: any;
+  activeCourse?: Course;
   activeLessonId?: string;
   onSelectLesson?: (lessonId: string) => void;
   completedLessons?: string[];
@@ -31,7 +31,7 @@ export default function Sidebar({
 }: SidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const [history, setHistory] = useState<any[]>([]);
+  const [history, setHistory] = useState<Course[]>([]);
   const [showSettings, setShowSettings] = useState(false);
   
   // Model Settings State
@@ -116,7 +116,7 @@ export default function Sidebar({
     router.push('/');
   };
 
-  const loadPastCourse = async (course: any) => {
+  const loadPastCourse = async (course: Course) => {
     try {
       await fetch('/api/courses', {
         method: 'POST',
@@ -131,11 +131,11 @@ export default function Sidebar({
     router.push(`/workspace?courseId=${course.id}`);
   };
 
-  const flatLessonsList: any[] = [];
+  const flatLessonsList: Lesson[] = [];
   if (Array.isArray(activeCourse?.syllabus?.modules)) {
-    activeCourse.syllabus.modules.forEach((mod: any) => {
+    activeCourse.syllabus.modules.forEach((mod) => {
       if (Array.isArray(mod.lessons)) {
-        mod.lessons.forEach((les: any) => {
+        mod.lessons.forEach((les) => {
           flatLessonsList.push(les);
         });
       }
@@ -186,7 +186,7 @@ export default function Sidebar({
             </div>
 
             <div className="space-y-1">
-              {flatLessonsList.map((les: any, index: number) => {
+              {flatLessonsList.map((les, index: number) => {
                 const isCompleted = completedLessons.includes(les.id);
                 const isActive = activeLessonId === les.id;
                 
@@ -223,7 +223,7 @@ export default function Sidebar({
               <div className="text-xs text-slate-400 italic px-2">No past courses generated.</div>
             ) : (
               <div className="space-y-1">
-                {history.slice(0, 8).map((course: any) => (
+                {history.slice(0, 8).map((course) => (
                   <button
                     key={course.id}
                     onClick={() => loadPastCourse(course)}

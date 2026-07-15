@@ -6,11 +6,10 @@ import Sidebar from '@/components/Sidebar';
 import LessonBody from '@/components/LessonBody';
 import QuizCard from '@/components/QuizCard';
 import { Share2 } from 'lucide-react';
-
-
 import BrandLogo from '@/components/BrandLogo';
+import { Course, Lesson } from '@/types';
 
-async function loadCourse(courseId: string | undefined) {
+async function loadCourse(courseId: string | undefined): Promise<Course | null> {
   if (!courseId) return null;
   
   // 1. Try DB
@@ -18,7 +17,7 @@ async function loadCourse(courseId: string | undefined) {
     const res = await fetch('/api/courses');
     if (res.ok) {
       const data = await res.json();
-      const course = data.history?.find((c: any) => c.id === courseId);
+      const course = (data.history as Course[])?.find((c) => c.id === courseId);
       if (course) return course;
     }
   } catch (err) {
@@ -30,19 +29,19 @@ async function loadCourse(courseId: string | undefined) {
     try {
       const storedHistory = localStorage.getItem('synapse_course_history');
       if (storedHistory) {
-        const history = JSON.parse(storedHistory);
-        return history.find((c: any) => c.id === courseId) ?? null;
+        const history = JSON.parse(storedHistory) as Course[];
+        return history.find((c) => c.id === courseId) ?? null;
       }
     } catch {}
   }
   return null;
 }
 
-function flattenLessons(course: any): any[] {
-  const list: any[] = [];
+function flattenLessons(course: Course): Lesson[] {
+  const list: Lesson[] = [];
   if (Array.isArray(course?.syllabus?.modules)) {
-    course.syllabus.modules.forEach((mod: any) => {
-      if (Array.isArray(mod.lessons)) mod.lessons.forEach((les: any) => list.push(les));
+    course.syllabus.modules.forEach((mod) => {
+      if (Array.isArray(mod.lessons)) mod.lessons.forEach((les) => list.push(les));
     });
   }
   return list;
@@ -56,10 +55,10 @@ function WorkspaceContent({ courseId }: { courseId?: string }) {
   // useEffect below. This avoids a hydration mismatch where the server renders
   // the loading spinner (window === undefined → null) but the client renders
   // the full workspace (localStorage available → real data).
-  const [activeCourse, setActiveCourse] = useState<any | null>(null);
+  const [activeCourse, setActiveCourse] = useState<Course | null>(null);
   const [activeLessonId, setActiveLessonId] = useState<string>('');
   const [completedLessons, setCompletedLessons] = useState<string[]>([]);
-  const [flatLessons, setFlatLessons] = useState<any[]>([]);
+  const [flatLessons, setFlatLessons] = useState<Lesson[]>([]);
 
   // Load course after mount, then redirect if not found.
   useEffect(() => {
@@ -130,8 +129,8 @@ function WorkspaceContent({ courseId }: { courseId?: string }) {
     const storedHistory = localStorage.getItem('synapse_course_history');
     if (storedHistory) {
       try {
-        let history = JSON.parse(storedHistory);
-        const index = history.findIndex((c: any) => c.id === courseId);
+        let history = JSON.parse(storedHistory) as Course[];
+        const index = history.findIndex((c) => c.id === courseId);
         if (index !== -1) {
           history[index].completedLessons = updatedCompleted;
           localStorage.setItem('synapse_course_history', JSON.stringify(history));

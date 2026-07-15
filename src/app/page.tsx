@@ -12,6 +12,7 @@ import {
   DEFAULT_OLLAMA_HOST,
   DEFAULT_OLLAMA_MODEL
 } from '@/utils/constants';
+import { Course, ModelConfig } from '@/types';
 
 export default function Home() {
   const router = useRouter();
@@ -19,7 +20,7 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [loadingStep, setLoadingStep] = useState(0);
   const [error, setError] = useState<string | null>(null);
-  const [history, setHistory] = useState<any[]>([]);
+  const [history, setHistory] = useState<Course[]>([]);
   const [showSettings, setShowSettings] = useState(false);
   
   // Model Settings State
@@ -31,8 +32,8 @@ export default function Home() {
   // Load configuration & history
   useEffect(() => {
     const loadData = async () => {
-      let currentHistory: any[] = [];
-      let currentConfig: any = null;
+      let currentHistory: Course[] = [];
+      let currentConfig: ModelConfig | null = null;
 
       // 1. Fetch from MongoDB
       try {
@@ -250,7 +251,7 @@ export default function Home() {
     }
   };
 
-  const handleSelectCourse = async (course: any) => {
+  const handleSelectCourse = async (course: Course) => {
     try {
       await fetch('/api/courses', {
         method: 'POST',
