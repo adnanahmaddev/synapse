@@ -42,38 +42,72 @@ export default function Sidebar({
   
 
   useEffect(() => {
-    // Load Settings
-    const storedConfig = localStorage.getItem('synapse_model_config');
-    if (storedConfig) {
+    const loadData = async () => {
+      // 1. Load History & Config from MongoDB
       try {
-        const config = JSON.parse(storedConfig);
-        setProvider(config.provider || 'gemini');
-        setApiKey(config.apiKey || '');
-        setOllamaHost(config.host || process.env.NEXT_PUBLIC_OLLAMA_HOST || DEFAULT_OLLAMA_HOST);
-        setOllamaModel(config.model || process.env.NEXT_PUBLIC_OLLAMA_MODEL || DEFAULT_OLLAMA_MODEL);
-      } catch (e) {
-        console.error(e);
+        const res = await fetch('/api/courses');
+        if (res.ok) {
+          const data = await res.json();
+          if (data.history) setHistory(data.history);
+        }
+      } catch (err) {
+        console.error('Failed to load courses in sidebar:', err);
+        // Local fallback
+        const storedHistory = localStorage.getItem('synapse_course_history');
+        if (storedHistory) {
+          try { setHistory(JSON.parse(storedHistory)); } catch {}
+        }
       }
-    }
 
-    // Load History
-    const storedHistory = localStorage.getItem('synapse_course_history');
-    if (storedHistory) {
       try {
-        setHistory(JSON.parse(storedHistory));
-      } catch (e) {
-        console.error(e);
+        const res = await fetch('/api/config');
+        if (res.ok) {
+          const data = await res.json();
+          const config = data.modelConfig;
+          if (config) {
+            setProvider(config.provider || 'gemini');
+            setApiKey(config.apiKey || '');
+            setOllamaHost(config.host || process.env.NEXT_PUBLIC_OLLAMA_HOST || DEFAULT_OLLAMA_HOST);
+            setOllamaModel(config.model || process.env.NEXT_PUBLIC_OLLAMA_MODEL || DEFAULT_OLLAMA_MODEL);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load settings in sidebar:', err);
+        // Local fallback
+        const storedConfig = localStorage.getItem('synapse_model_config');
+        if (storedConfig) {
+          try {
+            const config = JSON.parse(storedConfig);
+            setProvider(config.provider || 'gemini');
+            setApiKey(config.apiKey || '');
+            setOllamaHost(config.host || process.env.NEXT_PUBLIC_OLLAMA_HOST || DEFAULT_OLLAMA_HOST);
+            setOllamaModel(config.model || process.env.NEXT_PUBLIC_OLLAMA_MODEL || DEFAULT_OLLAMA_MODEL);
+          } catch {}
+        }
       }
-    }
+    };
+
+    loadData();
   }, [pathname]);
 
-  const saveSettings = () => {
+  const saveSettings = async () => {
     const config = {
       provider,
       apiKey: provider === 'gemini' ? apiKey : '',
       host: provider === 'ollama' ? ollamaHost : '',
       model: provider === 'gemini' ? 'gemini-2.5-flash' : ollamaModel
     };
+
+    try {
+      await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ modelConfig: config })
+      });
+    } catch (e) {
+      console.error('Failed to save config in sidebar:', e);
+    }
+
     localStorage.setItem('synapse_model_config', JSON.stringify(config));
     setShowSettings(false);
   };
@@ -82,7 +116,17 @@ export default function Sidebar({
     router.push('/');
   };
 
-  const loadPastCourse = (course: any) => {
+  const loadPastCourse = async (course: any) => {
+    try {
+      await fetch('/api/courses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ activeCourseId: course.id })
+      });
+    } catch (e) {
+      console.error('Failed to save active course ID in sidebar:', e);
+    }
+
     localStorage.setItem('synapse_active_course_id', course.id);
     router.push(`/workspace?courseId=${course.id}`);
   };

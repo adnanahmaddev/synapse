@@ -10,16 +10,32 @@ import { Share2 } from 'lucide-react';
 
 import BrandLogo from '@/components/BrandLogo';
 
-function loadCourseFromStorage(courseId: string | undefined) {
-  if (!courseId || typeof window === 'undefined') return null;
+async function loadCourse(courseId: string | undefined) {
+  if (!courseId) return null;
+  
+  // 1. Try DB
   try {
-    const storedHistory = localStorage.getItem('synapse_course_history');
-    if (!storedHistory) return null;
-    const history = JSON.parse(storedHistory);
-    return history.find((c: any) => c.id === courseId) ?? null;
-  } catch {
-    return null;
+    const res = await fetch('/api/courses');
+    if (res.ok) {
+      const data = await res.json();
+      const course = data.history?.find((c: any) => c.id === courseId);
+      if (course) return course;
+    }
+  } catch (err) {
+    console.error('Failed to load course from DB, falling back to localStorage:', err);
   }
+
+  // 2. Try localStorage fallback
+  if (typeof window !== 'undefined') {
+    try {
+      const storedHistory = localStorage.getItem('synapse_course_history');
+      if (storedHistory) {
+        const history = JSON.parse(storedHistory);
+        return history.find((c: any) => c.id === courseId) ?? null;
+      }
+    } catch {}
+  }
+  return null;
 }
 
 function flattenLessons(course: any): any[] {
@@ -45,22 +61,27 @@ function WorkspaceContent({ courseId }: { courseId?: string }) {
   const [completedLessons, setCompletedLessons] = useState<string[]>([]);
   const [flatLessons, setFlatLessons] = useState<any[]>([]);
 
-  // Load course from localStorage after mount, then redirect if not found.
+  // Load course after mount, then redirect if not found.
   useEffect(() => {
     if (!courseId) {
       router.push('/');
       return;
     }
-    const course = loadCourseFromStorage(courseId);
-    if (!course) {
-      router.push('/');
-      return;
-    }
-    const lessons = flattenLessons(course);
-    setActiveCourse(course);
-    setFlatLessons(lessons);
-    setActiveLessonId(lessons[0]?.id ?? '');
-    setCompletedLessons(course.completedLessons ?? []);
+    
+    const fetchCourse = async () => {
+      const course = await loadCourse(courseId);
+      if (!course) {
+        router.push('/');
+        return;
+      }
+      const lessons = flattenLessons(course);
+      setActiveCourse(course);
+      setFlatLessons(lessons);
+      setActiveLessonId(lessons[0]?.id ?? '');
+      setCompletedLessons(course.completedLessons ?? []);
+    };
+
+    fetchCourse();
   }, [courseId, router]);
 
   if (!activeCourse) {
@@ -80,13 +101,32 @@ function WorkspaceContent({ courseId }: { courseId?: string }) {
     setActiveLessonId(lessonId);
   };
 
-  const handlePassActiveRecall = () => {
+  const handlePassActiveRecall = async () => {
     if (completedLessons.includes(activeLessonId)) return;
 
     const updatedCompleted = [...completedLessons, activeLessonId];
     setCompletedLessons(updatedCompleted);
 
-    // Sync back to local storage history list
+    const updatedCourse = {
+      ...activeCourse,
+      completedLessons: updatedCompleted
+    };
+
+    // Sync active course state
+    setActiveCourse(updatedCourse);
+
+    // 1. Sync to MongoDB
+    try {
+      await fetch('/api/courses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ course: updatedCourse })
+      });
+    } catch (e) {
+      console.error('Failed to sync progress to DB:', e);
+    }
+
+    // 2. Sync back to local storage history list as fallback
     const storedHistory = localStorage.getItem('synapse_course_history');
     if (storedHistory) {
       try {
@@ -95,9 +135,6 @@ function WorkspaceContent({ courseId }: { courseId?: string }) {
         if (index !== -1) {
           history[index].completedLessons = updatedCompleted;
           localStorage.setItem('synapse_course_history', JSON.stringify(history));
-          
-          // Sync active course state
-          setActiveCourse(history[index]);
         }
       } catch (e) {
         console.error(e);

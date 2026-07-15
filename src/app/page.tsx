@@ -30,27 +30,117 @@ export default function Home() {
 
   // Load configuration & history
   useEffect(() => {
-    const storedConfig = localStorage.getItem('synapse_model_config');
-    if (storedConfig) {
-      try {
-        const config = JSON.parse(storedConfig);
-        setProvider(config.provider || 'gemini');
-        setApiKey(config.apiKey || '');
-        setOllamaHost(config.host || DEFAULT_OLLAMA_HOST);
-        setOllamaModel(config.model || DEFAULT_OLLAMA_MODEL);
-      } catch (e) {
-        console.error(e);
-      }
-    }
+    const loadData = async () => {
+      let currentHistory: any[] = [];
+      let currentConfig: any = null;
 
-    const storedHistory = localStorage.getItem('synapse_course_history');
-    if (storedHistory) {
+      // 1. Fetch from MongoDB
       try {
-        setHistory(JSON.parse(storedHistory));
-      } catch (e) {
-        console.error(e);
+        const res = await fetch('/api/courses');
+        if (res.ok) {
+          const data = await res.json();
+          currentHistory = data.history || [];
+        }
+      } catch (err) {
+        console.error('Failed to load courses from DB, using fallback:', err);
       }
-    }
+
+      try {
+        const res = await fetch('/api/config');
+        if (res.ok) {
+          const data = await res.json();
+          currentConfig = data.modelConfig;
+        }
+      } catch (err) {
+        console.error('Failed to load config from DB, using fallback:', err);
+      }
+
+      // 2. Perform Migration check
+      const migrated = localStorage.getItem('synapse_migrated_to_mongodb') === 'true';
+      if (!migrated) {
+        const storedHistory = localStorage.getItem('synapse_course_history');
+        const storedConfig = localStorage.getItem('synapse_model_config');
+        
+        let migratedSomething = false;
+
+        if (storedHistory) {
+          try {
+            const parsedHistory = JSON.parse(storedHistory);
+            if (Array.isArray(parsedHistory) && parsedHistory.length > 0) {
+              // Save local history to DB
+              await fetch('/api/courses', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ courses: parsedHistory })
+              });
+              
+              // Merge local history with DB history (no duplicates)
+              const merged = [...parsedHistory];
+              currentHistory.forEach((c) => {
+                if (!merged.some((m) => m.id === c.id)) {
+                  merged.push(c);
+                }
+              });
+              currentHistory = merged.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+              migratedSomething = true;
+            }
+          } catch (e) {
+            console.error('Migration error history:', e);
+          }
+        }
+
+        if (storedConfig) {
+          try {
+            const parsedConfig = JSON.parse(storedConfig);
+            if (parsedConfig) {
+              await fetch('/api/config', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ modelConfig: parsedConfig })
+              });
+              currentConfig = parsedConfig;
+              migratedSomething = true;
+            }
+          } catch (e) {
+            console.error('Migration error config:', e);
+          }
+        }
+
+        if (migratedSomething || storedHistory || storedConfig) {
+          localStorage.setItem('synapse_migrated_to_mongodb', 'true');
+        }
+      }
+
+      // 3. Set UI state
+      if (currentHistory.length > 0) {
+        setHistory(currentHistory);
+      } else {
+        const storedHistory = localStorage.getItem('synapse_course_history');
+        if (storedHistory) {
+          try { setHistory(JSON.parse(storedHistory)); } catch {}
+        }
+      }
+
+      if (currentConfig) {
+        setProvider(currentConfig.provider || 'gemini');
+        setApiKey(currentConfig.apiKey || '');
+        setOllamaHost(currentConfig.host || DEFAULT_OLLAMA_HOST);
+        setOllamaModel(currentConfig.model || DEFAULT_OLLAMA_MODEL);
+      } else {
+        const storedConfig = localStorage.getItem('synapse_model_config');
+        if (storedConfig) {
+          try {
+            const config = JSON.parse(storedConfig);
+            setProvider(config.provider || 'gemini');
+            setApiKey(config.apiKey || '');
+            setOllamaHost(config.host || DEFAULT_OLLAMA_HOST);
+            setOllamaModel(config.model || DEFAULT_OLLAMA_MODEL);
+          } catch {}
+        }
+      }
+    };
+
+    loadData();
   }, []);
 
   // Loading animation step timer
@@ -64,13 +154,24 @@ export default function Home() {
     return () => clearInterval(interval);
   }, [loading]);
 
-  const saveSettings = () => {
+  const saveSettings = async () => {
     const config = {
       provider,
       apiKey: provider === 'gemini' ? apiKey : '',
       host: provider === 'ollama' ? ollamaHost : '',
       model: provider === 'gemini' ? 'gemini-2.5-flash' : ollamaModel
     };
+
+    try {
+      await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ modelConfig: config })
+      });
+    } catch (e) {
+      console.error('Failed to save config to DB:', e);
+    }
+
     localStorage.setItem('synapse_model_config', JSON.stringify(config));
     setShowSettings(false);
   };
@@ -83,11 +184,12 @@ export default function Home() {
     setLoadingStep(0);
 
     try {
-      let modelConfig = { provider: 'gemini' };
-      const storedConfig = localStorage.getItem('synapse_model_config');
-      if (storedConfig) {
-        modelConfig = JSON.parse(storedConfig);
-      }
+      const modelConfig = {
+        provider,
+        apiKey: provider === 'gemini' ? apiKey : '',
+        host: provider === 'ollama' ? ollamaHost : '',
+        model: provider === 'gemini' ? 'gemini-2.5-flash' : ollamaModel
+      };
 
       const response = await fetch('/api/generate', {
         method: 'POST',
@@ -119,12 +221,27 @@ export default function Home() {
 
       let currentHistory = [newCourse, ...history];
       setHistory(currentHistory);
+
+      // Save to MongoDB
+      try {
+        await fetch('/api/courses', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ course: newCourse })
+        });
+        await fetch('/api/courses', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ activeCourseId: newCourseId })
+        });
+      } catch (e) {
+        console.error('Failed to save course to DB:', e);
+      }
+
       localStorage.setItem('synapse_course_history', JSON.stringify(currentHistory));
       localStorage.setItem('synapse_active_course_id', newCourseId);
 
       router.push(`/workspace?courseId=${newCourseId}`);
-      // Don't setLoading(false) here — let the overlay persist through navigation
-      // to avoid a flash of the home page. The workspace page takes over from here.
 
     } catch (err: any) {
       console.error(err);
@@ -133,7 +250,17 @@ export default function Home() {
     }
   };
 
-  const handleSelectCourse = (course: any) => {
+  const handleSelectCourse = async (course: any) => {
+    try {
+      await fetch('/api/courses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ activeCourseId: course.id })
+      });
+    } catch (e) {
+      console.error('Failed to save active course ID to DB:', e);
+    }
+
     localStorage.setItem('synapse_active_course_id', course.id);
     router.push(`/workspace?courseId=${course.id}`);
   };
