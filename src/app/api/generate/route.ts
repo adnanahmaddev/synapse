@@ -116,7 +116,12 @@ export async function POST(request: Request) {
             { role: 'user', content: `Generate a syllabus for: "${prompt}"` }
           ],
           format: 'json',
-          stream: false
+          stream: false,
+          options: {
+            num_ctx: 8192,
+            num_predict: 4096,
+            temperature: 0.2
+          }
         })
       });
 
