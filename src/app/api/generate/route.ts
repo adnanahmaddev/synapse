@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { GoogleGenerativeAI, SchemaType } from '@google/generative-ai';
+import { GoogleGenerativeAI, SchemaType, GenerativeModel, ResponseSchema } from '@google/generative-ai';
 import { 
   DEFAULT_OLLAMA_HOST, 
   DEFAULT_OLLAMA_MODEL, 
@@ -67,6 +67,43 @@ const syllabusSchema = {
 // System prompt explaining instructions clearly
 const systemPrompt = SYLLABUS_SYSTEM_PROMPT;
 
+/**
+ * Helper function to call model.generateContent with exponential backoff retry.
+ * Only retries on rate limits (429), transient server overloads (503), or network timeouts.
+ */
+async function generateContentWithRetry(
+  model: GenerativeModel,
+  contents: Parameters<GenerativeModel['generateContent']>[0],
+  maxRetries = 3,
+  baseDelayMs = 1000
+) {
+  let attempt = 0;
+  while (true) {
+    try {
+      attempt++;
+      return await model.generateContent(contents);
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      const errStatus = err && typeof err === 'object' && 'status' in err ? (err as { status: number }).status : undefined;
+
+      const isRateLimit = errStatus === 429 || errMsg.includes('429') || errMsg.toLowerCase().includes('rate limit');
+      const isNetworkError = errMsg.includes('fetch failed') || errMsg.toLowerCase().includes('network') || errMsg.toLowerCase().includes('timeout');
+      const isServerOverloaded = errStatus === 503 || errMsg.includes('503') || errMsg.toLowerCase().includes('overloaded');
+
+      const isRetryable = isRateLimit || isNetworkError || isServerOverloaded;
+
+      if (attempt >= maxRetries || !isRetryable) {
+        throw err;
+      }
+
+      const backoffDelay = baseDelayMs * Math.pow(2, attempt - 1);
+      console.warn(`[Gemini API] Request failed (Attempt ${attempt}/${maxRetries}). Retrying in ${backoffDelay}ms. Error: ${errMsg}`);
+      
+      await new Promise((resolve) => setTimeout(resolve, backoffDelay));
+    }
+  }
+}
+
 export async function POST(request: Request) {
   try {
     const { prompt, modelConfig } = await request.json();
@@ -89,11 +126,11 @@ export async function POST(request: Request) {
         model: modelConfig?.model || DEFAULT_GEMINI_MODEL,
         generationConfig: {
           responseMimeType: "application/json",
-          responseSchema: syllabusSchema as any,
+          responseSchema: syllabusSchema as ResponseSchema,
         }
       });
 
-      const result = await model.generateContent([
+      const result = await generateContentWithRetry(model, [
         { text: systemPrompt },
         { text: `Generate a syllabus for: "${prompt}"` }
       ]);
@@ -141,8 +178,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: `Unsupported provider: ${provider}` }, { status: 400 });
     }
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Course generation failed:", error);
-    return NextResponse.json({ error: error.message || "Failed to generate course" }, { status: 500 });
+    const errMsg = error instanceof Error ? error.message : "Failed to generate course";
+    return NextResponse.json({ error: errMsg }, { status: 500 });
   }
 }
