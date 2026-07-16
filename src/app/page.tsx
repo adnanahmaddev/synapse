@@ -40,6 +40,7 @@ export default function Home() {
     const loadData = async () => {
       let currentHistory: Course[] = [];
       let currentConfig: ModelConfig | null = null;
+      let isMongoOnline = false;
 
       // 1. Fetch from MongoDB
       try {
@@ -47,6 +48,7 @@ export default function Home() {
         if (res.ok) {
           const data = await res.json();
           currentHistory = data.history || [];
+          isMongoOnline = true;
         }
       } catch (err) {
         console.error('Failed to load courses from DB, using fallback:', err);
@@ -62,7 +64,41 @@ export default function Home() {
         console.error('Failed to load config from DB, using fallback:', err);
       }
 
-      // 2. Perform Migration check
+      // 2. Sync local IndexedDB updates/additions to MongoDB (if online)
+      if (isMongoOnline) {
+        const localHistory = await getCoursesFromIndexedDB();
+        const unsynced = localHistory.filter(localCourse => {
+          const mongoCourse = currentHistory.find(mc => mc.id === localCourse.id);
+          if (!mongoCourse) return true; // Offline-created course
+          
+          const localCompletedCount = localCourse.completedLessons?.length || 0;
+          const mongoCompletedCount = mongoCourse.completedLessons?.length || 0;
+          return localCompletedCount > mongoCompletedCount; // Offline-completed lesson progress
+        });
+
+        if (unsynced.length > 0) {
+          console.log(`Syncing ${unsynced.length} offline course update(s) to MongoDB...`);
+          try {
+            const syncRes = await fetch('/api/courses', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ courses: unsynced })
+            });
+            if (syncRes.ok) {
+              // Reload from MongoDB to get updated database state
+              const refreshRes = await fetch('/api/courses');
+              if (refreshRes.ok) {
+                const refreshData = await refreshRes.json();
+                currentHistory = refreshData.history || [];
+              }
+            }
+          } catch (syncErr) {
+            console.error('Failed to sync offline courses to MongoDB:', syncErr);
+          }
+        }
+      }
+
+      // 3. Perform legacy LocalStorage -> MongoDB migration check
       const migrated = localStorage.getItem('synapse_migrated_to_mongodb') === 'true';
       if (!migrated) {
         const storedHistory = localStorage.getItem('synapse_course_history');
@@ -118,10 +154,10 @@ export default function Home() {
         }
       }
 
-      // 3. Migrate localStorage history to IndexedDB & clear legacy localStorage history key
+      // 4. Migrate localStorage history key to IndexedDB
       await migrateLocalStorageToIndexedDB();
 
-      // 4. Set UI state and sync IndexedDB cache
+      // 5. Set UI state and sync IndexedDB cache
       if (currentHistory.length > 0) {
         setHistory(currentHistory);
         await saveCoursesToIndexedDB(currentHistory);
