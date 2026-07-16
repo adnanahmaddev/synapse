@@ -71,6 +71,8 @@ export default function Sidebar({
             setOllamaHost(config.host || process.env.NEXT_PUBLIC_OLLAMA_HOST || DEFAULT_OLLAMA_HOST);
             setOllamaModel(config.model || process.env.NEXT_PUBLIC_OLLAMA_MODEL || DEFAULT_OLLAMA_MODEL);
           }
+        } else {
+          throw new Error('Config request not successful');
         }
       } catch (err) {
         console.error('Failed to load settings in sidebar:', err);
