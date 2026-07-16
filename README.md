@@ -16,7 +16,7 @@ Synapse is an AI-powered, personalized learning platform that maps any subject o
 * **Gemini Connection Retry Strategy**: API routes feature exponential backoff retry parameters to handle rate limiting (429), server overloads (503), or socket timeouts.
 * **Unified Developer Launcher**: A concurrent Python script that starts Ollama serve, pre-warms the local `gemma4:e4b` model, and boots up the Next.js dev server.
 
----
+
 
 ## Environment Variables (`.env`)
 
@@ -31,7 +31,7 @@ Create a `.env` file in the root directory (refer to [`.env.example`](file:///Us
 | `NEXT_PUBLIC_OLLAMA_HOST` | Client | Exposes default Ollama endpoint to the settings panel in browser. | `http://localhost:11434` |
 | `NEXT_PUBLIC_OLLAMA_MODEL` | Client | Exposes default model recommendation to the settings panel in browser. | `gemma4:e4b` |
 
----
+
 
 ## Getting Started
 
@@ -69,7 +69,7 @@ npm run dev
 ```
 Open [http://localhost:3000](http://localhost:3000) in your browser.
 
----
+
 
 ## Build and Testing
 
