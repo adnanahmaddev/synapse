@@ -9,12 +9,11 @@ Synapse is an AI-powered, personalized learning platform that maps any subject o
 ## Key Features
 
 * **AI-Guided Curriculum Generation**: Input any topic (e.g., *CSS Grid*, *Quantum Physics*) to generate a structured module and lesson outline.
-* **Interactive Active Recall**: Embedded flashcards, quizzes, and checkpoints to assess and reinforce comprehension.
+* **Interactive Active Recall**: Embedded quizzes at the end of each lesson to assess and reinforce comprehension.
 * **Dual Model Providers**: Supports Google Gemini (Cloud) and Ollama (Local) for course generation.
 * **Robust Offline Fallback Cache**: Built-in **IndexedDB** caching system that protects against database connectivity errors, allowing full course history loading and lesson completions offline.
 * **Automatic Data Synchronization**: Seamlessly reconciles and syncs offline-created courses and progress up to MongoDB Atlas once the client reconnects.
 * **Gemini Connection Retry Strategy**: API routes feature exponential backoff retry parameters to handle rate limiting (429), server overloads (503), or socket timeouts.
-* **Unified Developer Launcher**: A concurrent Python script that starts Ollama serve, pre-warms the local `gemma4:e4b` model, and boots up the Next.js dev server.
 
 
 
