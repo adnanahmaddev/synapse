@@ -20,7 +20,7 @@ export default function CourseHistoryGrid({ history, onSelectCourse }: CourseHis
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full select-none">
-      {history.slice(0, 6).map((course) => {
+      {history.map((course) => {
         // Calculate total lessons
         const flatLessons: Lesson[] = [];
         if (Array.isArray(course.syllabus?.modules)) {

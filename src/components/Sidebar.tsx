@@ -226,7 +226,7 @@ export default function Sidebar({
               <div className="text-xs text-slate-400 italic px-2">No past courses generated.</div>
             ) : (
               <div className="space-y-1">
-                {history.slice(0, 8).map((course) => (
+                {history.map((course) => (
                   <button
                     key={course.id}
                     onClick={() => loadPastCourse(course)}
