@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { DEFAULT_OLLAMA_HOST, DEFAULT_OLLAMA_MODEL } from '@/utils/constants';
 import BrandLogo from '@/components/BrandLogo';
 import { Course, Lesson } from '@/types';
+import { getCoursesFromIndexedDB } from '@/utils/indexedDB';
 import { 
   Settings, 
   Sliders, 
@@ -53,9 +54,9 @@ export default function Sidebar({
       } catch (err) {
         console.error('Failed to load courses in sidebar:', err);
         // Local fallback
-        const storedHistory = localStorage.getItem('synapse_course_history');
-        if (storedHistory) {
-          try { setHistory(JSON.parse(storedHistory)); } catch {}
+        const localHistory = await getCoursesFromIndexedDB();
+        if (localHistory.length > 0) {
+          setHistory(localHistory);
         }
       }
 

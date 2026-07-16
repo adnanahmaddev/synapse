@@ -13,6 +13,12 @@ import {
   DEFAULT_OLLAMA_MODEL
 } from '@/utils/constants';
 import { Course, ModelConfig } from '@/types';
+import { 
+  getCoursesFromIndexedDB, 
+  saveCourseToIndexedDB, 
+  saveCoursesToIndexedDB,
+  migrateLocalStorageToIndexedDB 
+} from '@/utils/indexedDB';
 
 export default function Home() {
   const router = useRouter();
@@ -112,13 +118,17 @@ export default function Home() {
         }
       }
 
-      // 3. Set UI state
+      // 3. Migrate localStorage history to IndexedDB & clear legacy localStorage history key
+      await migrateLocalStorageToIndexedDB();
+
+      // 4. Set UI state and sync IndexedDB cache
       if (currentHistory.length > 0) {
         setHistory(currentHistory);
+        await saveCoursesToIndexedDB(currentHistory);
       } else {
-        const storedHistory = localStorage.getItem('synapse_course_history');
-        if (storedHistory) {
-          try { setHistory(JSON.parse(storedHistory)); } catch {}
+        const localHistory = await getCoursesFromIndexedDB();
+        if (localHistory.length > 0) {
+          setHistory(localHistory);
         }
       }
 
@@ -220,7 +230,7 @@ export default function Home() {
         createdAt: new Date().toISOString()
       };
 
-      let currentHistory = [newCourse, ...history];
+      const currentHistory = [newCourse, ...history];
       setHistory(currentHistory);
 
       // Save to MongoDB
@@ -239,14 +249,15 @@ export default function Home() {
         console.error('Failed to save course to DB:', e);
       }
 
-      localStorage.setItem('synapse_course_history', JSON.stringify(currentHistory));
+      await saveCourseToIndexedDB(newCourse);
       localStorage.setItem('synapse_active_course_id', newCourseId);
 
       router.push(`/workspace?courseId=${newCourseId}`);
 
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
-      setError(err.message || "Something went wrong while generating the course. Please try again.");
+      const errMsg = err instanceof Error ? err.message : "Something went wrong while generating the course. Please try again.";
+      setError(errMsg);
       setLoading(false);
     }
   };

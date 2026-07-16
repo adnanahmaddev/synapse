@@ -8,6 +8,7 @@ import QuizCard from '@/components/QuizCard';
 import { Share2 } from 'lucide-react';
 import BrandLogo from '@/components/BrandLogo';
 import { Course, Lesson } from '@/types';
+import { getCourseFromIndexedDB, saveCourseToIndexedDB } from '@/utils/indexedDB';
 
 async function loadCourse(courseId: string | undefined): Promise<Course | null> {
   if (!courseId) return null;
@@ -18,23 +19,18 @@ async function loadCourse(courseId: string | undefined): Promise<Course | null> 
     if (res.ok) {
       const data = await res.json();
       const course = (data.history as Course[])?.find((c) => c.id === courseId);
-      if (course) return course;
+      if (course) {
+        // Sync/refresh offline cache in IndexedDB
+        await saveCourseToIndexedDB(course);
+        return course;
+      }
     }
   } catch (err) {
-    console.error('Failed to load course from DB, falling back to localStorage:', err);
+    console.error('Failed to load course from DB, falling back to IndexedDB:', err);
   }
 
-  // 2. Try localStorage fallback
-  if (typeof window !== 'undefined') {
-    try {
-      const storedHistory = localStorage.getItem('synapse_course_history');
-      if (storedHistory) {
-        const history = JSON.parse(storedHistory) as Course[];
-        return history.find((c) => c.id === courseId) ?? null;
-      }
-    } catch {}
-  }
-  return null;
+  // 2. Try IndexedDB fallback
+  return getCourseFromIndexedDB(courseId);
 }
 
 function flattenLessons(course: Course): Lesson[] {
@@ -125,20 +121,8 @@ function WorkspaceContent({ courseId }: { courseId?: string }) {
       console.error('Failed to sync progress to DB:', e);
     }
 
-    // 2. Sync back to local storage history list as fallback
-    const storedHistory = localStorage.getItem('synapse_course_history');
-    if (storedHistory) {
-      try {
-        let history = JSON.parse(storedHistory) as Course[];
-        const index = history.findIndex((c) => c.id === courseId);
-        if (index !== -1) {
-          history[index].completedLessons = updatedCompleted;
-          localStorage.setItem('synapse_course_history', JSON.stringify(history));
-        }
-      } catch (e) {
-        console.error(e);
-      }
-    }
+    // 2. Sync back to IndexedDB fallback
+    await saveCourseToIndexedDB(updatedCourse);
   };
 
   const activeIdx = flatLessons.findIndex((l) => l.id === activeLessonId);
