@@ -2,7 +2,7 @@
 
 Synapse is an AI-powered, personalized learning platform that maps any subject or topic into a structured, interactive curriculum. The app generates custom modules, markdown lessons, and quiz checkpoints, supporting both cloud-based model inference (via Gemini) and 100% offline local inference (via Ollama).
 
-## 📺 Demo Video
+## Demo Video
 
 [![Synapse Demo Video](https://img.youtube.com/vi/pR3zxuX39h0/maxresdefault.jpg)](https://youtu.be/pR3zxuX39h0)
 
